@@ -1,6 +1,7 @@
 #include <node.h>
 #include <node_buffer.h>
 #include <v8.h>
+#include <nan.h>
 #include <cstring>
 #include <openssl/aes.h>
 #include <openssl/engine.h>
@@ -73,7 +74,8 @@ void NewEncoder(const FunctionCallbackInfo<Value>& args) {
   Local<ObjectTemplate> encoderClass = ObjectTemplate::New(isolate);
   encoderClass->SetInternalFieldCount(1);
 
-  Local<Object> obj = encoderClass->NewInstance();
+  // Local<Object> obj = encoderClass->NewInstance();
+  Local<Object> obj = Nan::NewInstance(encoderClass).ToLocalChecked();
   obj->SetAlignedPointerInInternalField(0, encoder);
 
   args.GetReturnValue().Set(obj);
@@ -88,16 +90,20 @@ void EncodeALAC(const FunctionCallbackInfo<Value>& args) {
     args.GetReturnValue().Set(Null(isolate));
   }
 
-  Local<Object>wrapper = args[0]->ToObject();
+  // Local<Object>wrapper = args[0]->ToObject();
+  Local<Object>wrapper = args[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
   ALACEncoder *encoder = (ALACEncoder*)wrapper->GetAlignedPointerFromInternalField(0);
 
   Local<Value> pcmBuffer = args[1];
-  unsigned char* pcmData = (unsigned char*)Buffer::Data(pcmBuffer->ToObject());
+  // unsigned char* pcmData = (unsigned char*)Buffer::Data(pcmBuffer->ToObject());
+  unsigned char* pcmData = (unsigned char*)Buffer::Data(pcmBuffer->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
 
   Local<Value> alacBuffer = args[2];
-  unsigned char* alacData = (unsigned char*)Buffer::Data(alacBuffer->ToObject());
+  // unsigned char* alacData = (unsigned char*)Buffer::Data(alacBuffer->ToObject());
+  unsigned char* alacData = (unsigned char*)Buffer::Data(alacBuffer->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
 
-  int32_t pcmSize = args[3]->Int32Value();
+  // int32_t pcmSize = args[3]->Int32Value();
+  int32_t pcmSize = args[3]->Int32Value(Nan::GetCurrentContext()).ToChecked();
 
   AudioFormatDescription inputFormat, outputFormat;
   FillInputAudioFormat(&inputFormat);
@@ -119,8 +125,8 @@ void EncryptAES(const FunctionCallbackInfo<Value>& args) {
   }
 
   Local<Value> alacBuffer = args[0];
-  unsigned char* alacData = (unsigned char*)Buffer::Data(alacBuffer->ToObject());
-  int32_t alacSize = args[1]->Int32Value();
+  unsigned char* alacData = (unsigned char*)Buffer::Data(alacBuffer->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
+  int32_t alacSize = args[1]->Int32Value(Nan::GetCurrentContext()).ToChecked();
 
   // This will encrypt data in-place
   uint8_t *buf;

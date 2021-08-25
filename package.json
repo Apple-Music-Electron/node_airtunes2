@@ -23,7 +23,8 @@
   ],
   "dependencies": {
     "async": "^3.2.0",
-    "lame": "github:suldashi/node-lame"
+    "lame": "github:suldashi/node-lame",
+    "nan": "^2.15.0"
   },
   "devDependencies": {
     "mdns": "^2.5.1",
