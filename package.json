@@ -22,10 +22,10 @@
     }
   ],
   "dependencies": {
-    "async": "^3.2.0"
+    "async": "^3.2.0",
+    "lame": "github:suldashi/node-lame"
   },
   "devDependencies": {
-    "lame": "*",
     "mdns": "^2.5.1",
     "optimist": "*",
     "request": "^2.83.0"
