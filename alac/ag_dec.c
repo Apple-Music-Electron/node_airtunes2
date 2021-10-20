@@ -53,6 +53,10 @@
 #define ALWAYS_INLINE
 #endif
 
+#ifdef _MSC_VER 
+#define inline __inline
+#endif
+
 /*	And on the subject of the CodeWarrior x86 compiler and inlining, I reworked a lot of this
 	to help the compiler out.   In many cases this required manual inlining or a macro.  Sorry
 	if it is ugly but the performance gains are well worth it.
