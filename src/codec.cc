@@ -152,7 +152,7 @@ void EncryptAES(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(Null(isolate));
 }
 
-void InitCodec(Handle<Object> target) {
+void InitCodec(Local<Object> target) {
   NODE_SET_METHOD(target, "encodeALAC", EncodeALAC);
   NODE_SET_METHOD(target, "encryptAES", EncryptAES);
   NODE_SET_METHOD(target, "newEncoder", NewEncoder);
