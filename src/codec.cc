@@ -19,7 +19,7 @@ extern "C" {
 using namespace v8;
 using namespace node;
 
-static int kBlockSize = 16;
+const int kBlockSize = 16;
 static int kFramesPerPacket = 352;
 
 // These values should be changed at each iteration
