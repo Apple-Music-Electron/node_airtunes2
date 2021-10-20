@@ -8,12 +8,12 @@ using namespace node;
 
 namespace nodeairtunes {
 
-void InitCodec(Global<Object>);
+void InitCodec(Local<Object>);
 #ifdef __APPLE__
-void InitCoreAudio(Global<Object>);
+void InitCoreAudio(Local<Object>);
 #endif
 
-void Initialize(Global<Object> target) {
+void Initialize(Local<Object> target) {
 
   Isolate* isolate = v8::Isolate::GetCurrent();
   Nan::HandleScope scope(isolate);
