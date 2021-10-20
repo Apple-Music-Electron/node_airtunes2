@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011 Apple Inc. All rights reserved.
+ * Windows/MSVC compatibility changes (c) 2011-2015 Peter Pawlowski
  *
  * @APPLE_APACHE_LICENSE_HEADER_START@
  * 
@@ -24,6 +25,7 @@
 	Contains:	Dynamic Predictor decode routines
 
 	Copyright:	(c) 2001-2011 Apple, Inc.
+	Windows/MSVC compatibility changes (c) 2011-2015 Peter Pawlowski
 */
 
 
@@ -36,10 +38,6 @@
 #define ALWAYS_INLINE
 #endif
 
-#ifdef _MSC_VER 
-#define inline __inline
-#endif
-
 #if TARGET_CPU_PPC && (__MWERKS__ >= 0x3200)
 // align loops to a 16 byte boundary to make the G5 happy
 #pragma function_align 16
@@ -48,7 +46,7 @@
 #define LOOP_ALIGN
 #endif
 
-static inline int32_t ALWAYS_INLINE sign_of_int( int32_t i )
+static /*inline*/ int32_t ALWAYS_INLINE sign_of_int( int32_t i )
 {
     int32_t negishift;
 	
