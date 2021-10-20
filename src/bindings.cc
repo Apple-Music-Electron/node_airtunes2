@@ -1,6 +1,6 @@
 #include <v8.h>
 #include <node.h>
-#include "nan.h"
+
 
 using namespace v8;
 using namespace node;
@@ -16,7 +16,7 @@ void InitCoreAudio(Local<Object>);
 void Initialize(Local<Object> target) {
 
   Isolate* isolate = v8::Isolate::GetCurrent();
-  Nan::HandleScope scope(isolate);
+  HandleScope scope(isolate);
 
   InitCodec(target);
 #ifdef __APPLE__
