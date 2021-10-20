@@ -36,6 +36,10 @@
 #define ALWAYS_INLINE
 #endif
 
+#ifdef _MSC_VER 
+#define inline __inline
+#endif
+
 #if TARGET_CPU_PPC && (__MWERKS__ >= 0x3200)
 // align loops to a 16 byte boundary to make the G5 happy
 #pragma function_align 16
