@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2011 Apple Inc. All rights reserved.
- * Bug fixes and Windows/MSVC compatibility changes (c) 2011-2015 Peter Pawlowski
  *
  * @APPLE_APACHE_LICENSE_HEADER_START@
  * 
@@ -54,9 +53,10 @@ enum
     ALAC_noErr = 0
 };
     
-
-enum
+#ifdef _MSC_VER
+typedef enum
 {
+    
     ID_SCE = 0,						/* Single Channel Element   */
     ID_CPE = 1,						/* Channel Pair Element     */
     ID_CCE = 2,						/* Coupling Channel Element */
@@ -65,8 +65,21 @@ enum
     ID_PCE = 5,
     ID_FIL = 6,
     ID_END = 7
-};
-
+} AELEMENT_TYPE;
+#else
+typedef enum
+{
+    
+    ID_SCE = 0,						/* Single Channel Element   */
+    ID_CPE = 1,						/* Channel Pair Element     */
+    ID_CCE = 2,						/* Coupling Channel Element */
+    ID_LFE = 3,						/* LFE Channel Element      */
+    ID_DSE = 4,						/* not yet supported        */
+    ID_PCE = 5,
+    ID_FIL = 6,
+    ID_END = 7
+} ELEMENT_TYPE;
+#endif
 // types
 typedef struct BitBuffer
 {
@@ -84,7 +97,6 @@ typedef struct BitBuffer
 */
 void	BitBufferInit( BitBuffer * bits, uint8_t * buffer, uint32_t byteSize );
 uint32_t	BitBufferRead( BitBuffer * bits, uint8_t numBits );   // note: cannot read more than 16 bits at a time
-uint32_t	BitBufferRemaining( BitBuffer * bits );
 uint8_t	BitBufferReadSmall( BitBuffer * bits, uint8_t numBits );
 uint8_t	BitBufferReadOne( BitBuffer * bits );
 uint32_t	BitBufferPeek( BitBuffer * bits, uint8_t numBits );   // note: cannot read more than 16 bits at a time

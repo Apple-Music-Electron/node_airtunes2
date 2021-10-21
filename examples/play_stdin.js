@@ -1,4 +1,4 @@
-var airtunes = require('../lib/'),
+var AirTunes = require('../lib/'),
     argv = require('optimist')
       .usage('Usage: $0 --host [host] --port [num] --volume [num] --password [string]')
       .default('host', 'localhost')
@@ -14,6 +14,7 @@ console.log('example: cat sample.pcm | node play_stdin.js --host <AirTunes host>
 // airtunes.addCoreAudio();
 
 console.log('adding device: ' + argv.host + ':' + argv.port);
+var airtunes = new AirTunes();
 var device = airtunes.add(argv.host, argv);
 
 

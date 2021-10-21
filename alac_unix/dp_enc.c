@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2011 Apple Inc. All rights reserved.
- * Windows/MSVC compatibility changes (c) 2011-2015 Peter Pawlowski
  *
  * @APPLE_APACHE_LICENSE_HEADER_START@
  * 
@@ -20,14 +19,12 @@
  */
 
 /*
-	File:		dp_dec.c
+	File:		dp_enc.c
 
-	Contains:	Dynamic Predictor decode routines
+	Contains:	Dynamic Predictor encode routines
 
 	Copyright:	(c) 2001-2011 Apple, Inc.
-	Windows/MSVC compatibility changes (c) 2011-2015 Peter Pawlowski
 */
-
 
 #include "dplib.h"
 #include <string.h>
@@ -38,6 +35,10 @@
 #define ALWAYS_INLINE
 #endif
 
+#ifdef _MSC_VER 
+#define inline __inline
+#endif
+
 #if TARGET_CPU_PPC && (__MWERKS__ >= 0x3200)
 // align loops to a 16 byte boundary to make the G5 happy
 #pragma function_align 16
@@ -46,7 +47,27 @@
 #define LOOP_ALIGN
 #endif
 
-static /*inline*/ int32_t ALWAYS_INLINE sign_of_int( int32_t i )
+void init_coefs( int16_t * coefs, uint32_t denshift, int32_t numPairs )
+{
+	int32_t		k;
+	int32_t		den = 1 << denshift;
+
+	coefs[0] = (AINIT * den) >> 4;
+	coefs[1] = (BINIT * den) >> 4;
+	coefs[2] = (CINIT * den) >> 4;
+	for ( k = 3; k < numPairs; k++ )
+		coefs[k]  = 0;
+}
+
+void copy_coefs( int16_t * srcCoefs, int16_t * dstCoefs, int32_t numPairs )
+{
+	int32_t k;
+
+	for ( k = 0; k < numPairs; k++ )
+		dstCoefs[k] = srcCoefs[k];
+}
+
+static inline int32_t ALWAYS_INLINE sign_of_int( int32_t i )
 {
     int32_t negishift;
 	
@@ -54,52 +75,42 @@ static /*inline*/ int32_t ALWAYS_INLINE sign_of_int( int32_t i )
     return negishift | (i >> 31);
 }
 
-void unpc_block( int32_t * pc1, int32_t * out, int32_t num, int16_t * coefs, int32_t numactive, uint32_t chanbits, uint32_t denshift )
+void pc_block( int32_t * in, int32_t * pc1, int32_t num, int16_t * coefs, int32_t numactive, uint32_t chanbits, uint32_t denshift )
 {
 	register int16_t	a0, a1, a2, a3;
 	register int32_t	b0, b1, b2, b3;
 	int32_t					j, k, lim;
-	int32_t				sum1, sg, sgn, top, dd;
-	int32_t *			pout;
+	int32_t *			pin;
+	int32_t				sum1, dd;
+	int32_t				sg, sgn;
+	int32_t				top;
 	int32_t				del, del0;
 	uint32_t			chanshift = 32 - chanbits;
-	int32_t				denhalf = 1<<(denshift-1);
+	int32_t				denhalf = 1 << (denshift - 1);
 
-	out[0] = pc1[0];
+	pc1[0] = in[0];
 	if ( numactive == 0 )
 	{
 		// just copy if numactive == 0 (but don't bother if in/out pointers the same)
-		if ( (num > 1)  && (pc1 != out) )
-			memcpy( &out[1], &pc1[1], (num - 1) * sizeof(int32_t) );
+		if ( (num > 1) && (in != pc1) )
+			memcpy( &pc1[1], &in[1], (num - 1) * sizeof(int32_t) );
 		return;
 	}
 	if ( numactive == 31 )
 	{
 		// short-circuit if numactive == 31
-		int32_t		prev;
-		
-		/*	this code is written such that the in/out buffers can be the same
-			to conserve buffer space on embedded devices like the iPod
-			
-			(original code)
-			for ( j = 1; j < num; j++ )
-				del = pc1[j] + out[j-1];
-				out[j] = (del << chanshift) >> chanshift;
-		*/
-		prev = out[0];
-		for ( j = 1; j < num; j++ )
+		for( j = 1; j < num; j++ )
 		{
-			del = pc1[j] + prev;
-			prev = (del << chanshift) >> chanshift;
-			out[j] = prev;
+			del = in[j] - in[j-1];
+			pc1[j] = (del << chanshift) >> chanshift;
 		}
 		return;
 	}
-
+	
 	for ( j = 1; j <= numactive; j++ )
 	{
-		del = pc1[j] + out[j-1];
-		out[j] = (del << chanshift) >> chanshift;
+		del = in[j] - in[j-1];
+		pc1[j] = (del << chanshift) >> chanshift;
 	}
 
 	lim = numactive + 1;
@@ -107,9 +118,6 @@ void unpc_block( int32_t * pc1, int32_t * out, int32_t num, int16_t * coefs, int
 	if ( numactive == 4 )
 	{
 		// optimization for numactive == 4
-		register int16_t	a0, a1, a2, a3;
-		register int32_t	b0, b1, b2, b3;
-
 		a0 = coefs[0];
 		a1 = coefs[1];
 		a2 = coefs[2];
@@ -119,23 +127,22 @@ void unpc_block( int32_t * pc1, int32_t * out, int32_t num, int16_t * coefs, int
 		{
 			LOOP_ALIGN
 
-			top = out[j - lim];
-			pout = out + j - 1;
+			top = in[j - lim];
+			pin = in + j - 1;
 
-			b0 = top - pout[0];
-			b1 = top - pout[-1];
-			b2 = top - pout[-2];
-			b3 = top - pout[-3];
+			b0 = top - pin[0];
+			b1 = top - pin[-1];
+			b2 = top - pin[-2];
+			b3 = top - pin[-3];
 
 			sum1 = (denhalf - a0 * b0 - a1 * b1 - a2 * b2 - a3 * b3) >> denshift;
 
-			del = pc1[j];
+			del = in[j] - top - sum1;
+			del = (del << chanshift) >> chanshift;
+			pc1[j] = del;	     
 			del0 = del;
+
 			sg = sign_of_int(del);
-			del += top + sum1;
-
-			out[j] = (del << chanshift) >> chanshift;
-
 			if ( sg > 0 )
 			{
 				sgn = sign_of_int( b3 );
@@ -190,10 +197,10 @@ void unpc_block( int32_t * pc1, int32_t * out, int32_t num, int16_t * coefs, int
 	}
 	else if ( numactive == 8 )
 	{
+		// optimization for numactive == 8
 		register int16_t	a4, a5, a6, a7;
 		register int32_t	b4, b5, b6, b7;
 
-		// optimization for numactive == 8
 		a0 = coefs[0];
 		a1 = coefs[1];
 		a2 = coefs[2];
@@ -207,29 +214,28 @@ void unpc_block( int32_t * pc1, int32_t * out, int32_t num, int16_t * coefs, int
 		{
 			LOOP_ALIGN
 
-			top = out[j - lim];
-			pout = out + j - 1;
+			top = in[j - lim];
+			pin = in + j - 1;
 
-			b0 = top - (*pout--);
-			b1 = top - (*pout--);
-			b2 = top - (*pout--);
-			b3 = top - (*pout--);
-			b4 = top - (*pout--);
-			b5 = top - (*pout--);
-			b6 = top - (*pout--);
-			b7 = top - (*pout);
-			pout += 8;
+			b0 = top - (*pin--);
+			b1 = top - (*pin--);
+			b2 = top - (*pin--);
+			b3 = top - (*pin--);
+			b4 = top - (*pin--);
+			b5 = top - (*pin--);
+			b6 = top - (*pin--);
+			b7 = top - (*pin);
+			pin += 8;
 
 			sum1 = (denhalf - a0 * b0 - a1 * b1 - a2 * b2 - a3 * b3
 					- a4 * b4 - a5 * b5 - a6 * b6 - a7 * b7) >> denshift;
 
-			del = pc1[j];
+			del = in[j] - top - sum1;
+			del = (del << chanshift) >> chanshift;
+			pc1[j] = del;	     
 			del0 = del;
+
 			sg = sign_of_int(del);
-			del += top + sum1;
-
-			out[j] = (del << chanshift) >> chanshift;
-
 			if ( sg > 0 )
 			{
 				sgn = sign_of_int( b7 );
@@ -336,29 +342,30 @@ void unpc_block( int32_t * pc1, int32_t * out, int32_t num, int16_t * coefs, int
 	}
 	else
 	{
+//pc_block_general:
 		// general case
 		for ( j = lim; j < num; j++ )
 		{
 			LOOP_ALIGN
 
+			top = in[j - lim];
+			pin = in + j - 1;
+
 			sum1 = 0;
-			pout = out + j - 1;
-			top = out[j-lim];
-
 			for ( k = 0; k < numactive; k++ )
-				sum1 += coefs[k] * (pout[-k] - top);
-
-			del = pc1[j];
+				sum1 -= coefs[k] * (top - pin[-k]);
+		
+			del = in[j] - top - ((sum1 + denhalf) >> denshift);
+			del = (del << chanshift) >> chanshift;
+			pc1[j] = del;
 			del0 = del;
-			sg = sign_of_int( del );
-			del += top + ((sum1 + denhalf) >> denshift);
-			out[j] = (del << chanshift) >> chanshift;
 
+			sg = sign_of_int( del );
 			if ( sg > 0 )
 			{
 				for ( k = (numactive - 1); k >= 0; k-- )
 				{
-					dd = top - pout[-k];
+					dd = top - pin[-k];
 					sgn = sign_of_int( dd );
 					coefs[k] -= sgn;
 					del0 -= (numactive - k) * ((sgn * dd) >> denshift);
@@ -370,7 +377,7 @@ void unpc_block( int32_t * pc1, int32_t * out, int32_t num, int16_t * coefs, int
 			{
 				for ( k = (numactive - 1); k >= 0; k-- )
 				{
-					dd = top - pout[-k];
+					dd = top - pin[-k];
 					sgn = sign_of_int( dd );
 					coefs[k] += sgn;
 					del0 -= (numactive - k) * ((-sgn * dd) >> denshift);

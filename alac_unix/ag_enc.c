@@ -1,6 +1,5 @@
 /*
  * Copyright (c) 2011 Apple Inc. All rights reserved.
- * Bug fixes and Windows/MSVC compatibility changes (c) 2011-2015 Peter Pawlowski
  *
  * @APPLE_APACHE_LICENSE_HEADER_START@
  * 
@@ -25,7 +24,6 @@
 	Contains:   Adaptive Golomb encode routines.
 
 	Copyright:	(c) 2001-2011 Apple, Inc.
-	Bug fixes and Windows/MSVC compatibility changes (c) 2011-2015 Peter Pawlowski
 */
 
 #include "aglib.h"
@@ -45,10 +43,6 @@
 	#endif
 #endif
 
-#ifdef _MSC_VER
-#include <intrin.h>
-#endif
-
 #define CODE_TO_LONG_MAXBITS	32
 #define N_MAX_MEAN_CLAMP		0xffff
 #define N_MEAN_CLAMP_VAL		0xffff
@@ -60,6 +54,9 @@
 #define ALWAYS_INLINE
 #endif
 
+#ifdef _MSC_VER 
+#define inline __inline
+#endif
 
 /*	And on the subject of the CodeWarrior x86 compiler and inlining, I reworked a lot of this
 	to help the compiler out.   In many cases this required manual inlining or a macro.  Sorry
@@ -67,14 +64,8 @@
 	- WSK 5/19/04
 */
 
-#ifdef _MSC_VER
-static int32_t lead(int32_t m) {
-	unsigned long index = 0; _BitScanReverse(&index, m);
-	return 31 - index;
-}
-#else
 // note: implementing this with some kind of "count leading zeros" assembly is a big performance win
-static /*inline*/ int32_t lead( int32_t m )
+static inline int32_t lead( int32_t m )
 {
 	long j;
 	unsigned long c = (1ul << 31);
@@ -85,15 +76,12 @@ static /*inline*/ int32_t lead( int32_t m )
 			break;
 		c >>= 1;
 	}
-	{
 	return (j);
 }
 
-#endif
-
 #define arithmin(a, b) ((a) < (b) ? (a) : (b))
 
-static /*inline*/ int32_t ALWAYS_INLINE lg3a( int32_t x)
+static inline int32_t ALWAYS_INLINE lg3a( int32_t x)
 {
     int32_t result;
 
@@ -103,7 +91,7 @@ static /*inline*/ int32_t ALWAYS_INLINE lg3a( int32_t x)
     return 31 - result;
 }
 
-static /*inline*/ int32_t ALWAYS_INLINE abs_func( int32_t a )
+static inline int32_t ALWAYS_INLINE abs_func( int32_t a )
 {
 	// note: the CW PPC intrinsic __abs() turns into these instructions so no need to try and use it
 	int32_t isneg  = a >> 31;
@@ -113,7 +101,7 @@ static /*inline*/ int32_t ALWAYS_INLINE abs_func( int32_t a )
 	return result;	
 }
 
-static /*inline*/ uint32_t ALWAYS_INLINE read32bit( uint8_t * buffer )
+static inline uint32_t ALWAYS_INLINE read32bit( uint8_t * buffer )
 {
 	// embedded CPUs typically can't read unaligned 32-bit words so just read the bytes
 	uint32_t		value;
@@ -127,7 +115,7 @@ static /*inline*/ uint32_t ALWAYS_INLINE read32bit( uint8_t * buffer )
 #pragma mark -
 #endif
 
-static /*inline*/ int32_t dyn_code(int32_t m, int32_t k, int32_t n, uint32_t *outNumBits)
+static inline int32_t dyn_code(int32_t m, int32_t k, int32_t n, uint32_t *outNumBits)
 {
 	uint32_t 	div, mod, de;
 	uint32_t	numBits;
@@ -163,7 +151,7 @@ static /*inline*/ int32_t dyn_code(int32_t m, int32_t k, int32_t n, uint32_t *ou
 }
 
 
-static /*inline*/ int32_t dyn_code_32bit(int32_t maxbits, uint32_t m, uint32_t k, uint32_t n, uint32_t *outNumBits, uint32_t *outValue, uint32_t *overflow, uint32_t *overflowbits)
+static inline int32_t dyn_code_32bit(int32_t maxbits, uint32_t m, uint32_t k, uint32_t n, uint32_t *outNumBits, uint32_t *outValue, uint32_t *overflow, uint32_t *overflowbits)
 {
 	uint32_t 	div, mod, de;
 	uint32_t	numBits;
@@ -199,7 +187,7 @@ codeasescape:
 }
 
 
-static /*inline*/ void ALWAYS_INLINE dyn_jam_noDeref(unsigned char *out, uint32_t bitPos, uint32_t numBits, uint32_t value)
+static inline void ALWAYS_INLINE dyn_jam_noDeref(unsigned char *out, uint32_t bitPos, uint32_t numBits, uint32_t value)
 {
 	uint32_t	*i = (uint32_t *)(out + (bitPos >> 3));
 	uint32_t	mask;
@@ -223,7 +211,7 @@ static /*inline*/ void ALWAYS_INLINE dyn_jam_noDeref(unsigned char *out, uint32_
 }
 
 
-static /*inline*/ void ALWAYS_INLINE dyn_jam_noDeref_large(unsigned char *out, uint32_t bitPos, uint32_t numBits, uint32_t value)
+static inline void ALWAYS_INLINE dyn_jam_noDeref_large(unsigned char *out, uint32_t bitPos, uint32_t numBits, uint32_t value)
 {
 	uint32_t *	i = (uint32_t *)(out + (bitPos>>3));
 	uint32_t	w;

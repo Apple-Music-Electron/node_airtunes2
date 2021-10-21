@@ -1,15 +1,16 @@
-var airtunes = require('../lib/'),
+var AirTunes = require('../lib/'),
     spawn = require('child_process').spawn,
     argv = require('optimist')
       .usage('Usage: $0 --host [host] --port [num] --ffmpeg [path] --file [path] --volume [num] --password [string]')
       .default('port', 5002)
       .default('volume', 50)
-      .default('ffmpeg', '/usr/local/bin/ffmpeg')
+      .default('ffmpeg', 'C:\\ffmpeg-4.4-essentials_build\\bin\\ffmpeg.exe')
       .default('file', './wakeup.mp3')
       .demand(['host'])
       .argv;
 
 console.log('adding device: ' + argv.host + ':' + argv.port);
+var airtunes = new AirTunes();
 var device = airtunes.add(argv.host, argv);
 
 // when the device is online, spawn ffmpeg to transcode the file

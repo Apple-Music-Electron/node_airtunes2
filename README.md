@@ -1,9 +1,9 @@
 node-airtunes2 - a node.js implementation of AirTunes v2
 =======================================================
 
-This package is fork of Laurent Perrin <laurent.perrin@gmail.com> implementation and all credits must go to him! My contribution is in added HomePod compatibility, which was achieved by heartbeat message being sent to HomePod every 60 seconds.
+**AirTunes v2 Audio client for Windows, Mac and Linux**
 
-I have also changed package name to airtunes2 and changed versioning scheme - now we are starting with 1.0.0.
+Updated to support Node v14.18.1
 
 I'm in a hurry
 --------------

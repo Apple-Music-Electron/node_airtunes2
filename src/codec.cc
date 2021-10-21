@@ -13,8 +13,13 @@ extern "C" {
 
 #include "base64.h"
 
+#ifdef _MSC_VER
 #include "../alac/ALACEncoder.h"
 #include "../alac/ALACBitUtilities.h"
+#else
+#include "../alac_unix/ALACEncoder.h"
+#include "../alac_unix/ALACBitUtilities.h"
+#endif
 
 using namespace v8;
 using namespace node;
