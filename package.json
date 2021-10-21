@@ -23,13 +23,13 @@
   ],
   "dependencies": {
     "async": "^3.2.0",
-    "lame": "github:suldashi/node-lame",
     "nan": "^2.15.0"
   },
   "devDependencies": {
     "mdns": "^2.5.1",
     "optimist": "*",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "lame": "github:suldashi/node-lame"
   },
   "bugs": {
     "url": "https://github.com/mcfisto/node_airtunes2/issues"
