@@ -1,7 +1,8 @@
 node-airtunes2 - a node.js implementation of AirTunes v2
 =======================================================
 
-AirTunes v2 Audio client for Windows, Mac and Linux
+**AirTunes v2 Audio client for Windows, Mac and Linux**
+
 Updated to support Node v14.18.1
 
 I'm in a hurry
