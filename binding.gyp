@@ -12,7 +12,7 @@
         "<!(node -e \"require('nan')\")"
       ],
       "include_dirs!" : [
-        "J:\\Windows Kits\\10\\Include\\10.0.19041.0\\um\\"
+        "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.19041.0\\um\\"
       ],
       'conditions': [
         ['OS=="mac"', {
