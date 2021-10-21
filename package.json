@@ -26,10 +26,10 @@
     "nan": "^2.15.0"
   },
   "devDependencies": {
-    "mdns": "^2.5.1",
+    "lame": "github:suldashi/node-lame",
+    "mdns": "^2.7.2",
     "optimist": "*",
-    "request": "^2.83.0",
-    "lame": "github:suldashi/node-lame"
+    "request": "^2.83.0"
   },
   "bugs": {
     "url": "https://github.com/mcfisto/node_airtunes2/issues"
