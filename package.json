@@ -22,16 +22,16 @@
     }
   ],
   "dependencies": {
-    "async": "^3.2.0",
+    "async": "^3.2.1",
     "nan": "^2.15.0"
   },
   "devDependencies": {
     "lame": "github:suldashi/node-lame",
     "mdns": "^2.7.2",
-    "optimist": "*",
+    "optimist": "^0.6.1",
     "request": "^2.83.0"
   },
   "bugs": {
-    "url": "https://github.com/mcfisto/node_airtunes2/issues"
+    "url": "https://github.com/vapormusic/node_airtunes2/issues"
   }
 }

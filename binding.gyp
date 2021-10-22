@@ -7,7 +7,6 @@
         'src/aes_utils.c', 'src/base64.c',
       ],        
       "include_dirs" : [
-        "<!(node -e \"require('nan')\")",
         'C:\\Program Files\\OpenSSL-Win64\\include\\',
       ],
       'conditions': [
