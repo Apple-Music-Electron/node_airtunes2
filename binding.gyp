@@ -22,8 +22,8 @@
           ],
         }],
         ['OS=="win"', {
+          'include_dirs':[ 'C:\\Program Files\\OpenSSL-Win64\\include\\'],
           'sources': [
-            'include_dirs': 'C:\\Program Files\\OpenSSL-Win64\\include\\,
             'alac/EndianPortable.c', 'alac/ALACBitUtilities.c', 'alac/ALACEncoder.cpp',
             'alac/ag_enc.c', 'alac/ag_dec.c', 'alac/dp_enc.c', 'alac/matrix_enc.c',
           ],
