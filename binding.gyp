@@ -8,7 +8,7 @@
       ],
       'conditions': [
         ['OS=="mac"', {
-          'include_dirs+': 
+          'include_dirs': 
             ['/System/Library/Frameworks/Kernel.framework/Versions/A/Headers/sys'
             ],
 
@@ -23,7 +23,7 @@
         }],
         ['OS=="win"', {
           'sources': [
-            'include_dirs+': 'C:\\Program Files\\OpenSSL-Win64\\include\\,
+            'include_dirs': 'C:\\Program Files\\OpenSSL-Win64\\include\\,
             'alac/EndianPortable.c', 'alac/ALACBitUtilities.c', 'alac/ALACEncoder.cpp',
             'alac/ag_enc.c', 'alac/ag_dec.c', 'alac/dp_enc.c', 'alac/matrix_enc.c',
           ],
