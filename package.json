@@ -9,12 +9,16 @@
     "sound",
     "audio"
   ],
-  "version": "2.1.1",
+  "version": "2.1.2",
   "author": "Laurent Perrin <laurent.perrin@gmail.com>",
   "main": "./lib/index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/vapormusic/node_airtunes2.git"
+  },
+  "scripts": {
+    "build-binaries-electron": "prebuild --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 18.0.3",
+    "install": "prebuild-install"   
   },
   "licenses": [
     {
@@ -22,13 +26,16 @@
     }
   ],
   "dependencies": {
-    "async": "^3.2.1"
+    "async": "^3.2.1",
+    "prebuild-install": "^7.0.0"
   },
   "devDependencies": {
     "lame": "github:suldashi/node-lame",
     "mdns": "^2.7.2",
     "optimist": "^0.6.1",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "prebuild": "^11.0.3",
+		"run-script-os": "^1.1.6"
   },
   "bugs": {
     "url": "https://github.com/vapormusic/node_airtunes2/issues"
