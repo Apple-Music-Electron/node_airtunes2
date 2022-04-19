@@ -11,7 +11,7 @@ I'm in a hurry
 Installation
 
 <pre>
-  npm install airtunes
+  npm install airtunes2
 </pre>
 
 The example folder contains several test scripts:
@@ -144,11 +144,11 @@ Node-airtunes was tested on the following devices:
 * AirFoil Speakers
 * Air Speaker
 * Freebox Server
-* Apple TV
+* Apple TV (only before tvOS 10.2)
 * Zeppelin Air
 * Raspberry PI
 * Bose SoundTouch
-* HomePod
+* HomePod / HomePod mini
 
 Ping me to add more devices to this list.
 
