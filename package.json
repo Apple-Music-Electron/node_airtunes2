@@ -20,7 +20,7 @@
     "build-binaries-electron": "run-script-os",
     "build-binaries-electron:win32:linux": "prebuild --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 18.0.3",
     "build-binaries-electron:darwin": "prebuild -a x64 -a arm64 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 18.0.3",
-    "install": "prebuild-install || npm run rebuild",   
+    "install": "prebuild-install || npm run rebuild",
     "rebuild": "node-gyp configure build"
   },
   "licenses": [
@@ -38,7 +38,7 @@
     "optimist": "^0.6.1",
     "request": "^2.83.0",
     "prebuild": "^11.0.3",
-		"run-script-os": "^1.1.6"
+    "run-script-os": "^1.1.6"
   },
   "bugs": {
     "url": "https://github.com/vapormusic/node_airtunes2/issues"
