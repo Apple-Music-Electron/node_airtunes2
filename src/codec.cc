@@ -97,7 +97,7 @@ void EncodeALAC(const FunctionCallbackInfo<Value>& args) {
 
   Local<Object> wrapper;
   args[0]->ToObject(ctx).ToLocal(&wrapper);
-  ALACEncoder *encoder = (ALACEncoder*)wrapper->GetAlignedPointerFromInternalField(0);
+  // ALACEncoder *encoder = (ALACEncoder*)wrapper->GetAlignedPointerFromInternalField(0);
 
   Local<Value> pcmBuffer = args[1];
   Local<Object> pcmObj;
@@ -111,12 +111,75 @@ void EncodeALAC(const FunctionCallbackInfo<Value>& args) {
 
   int32_t pcmSize = args[3]->Int32Value(ctx).FromJust();
 
-  AudioFormatDescription inputFormat, outputFormat;
-  FillInputAudioFormat(&inputFormat);
-  FillOutputAudioFormat(&outputFormat);
+  // AudioFormatDescription inputFormat, outputFormat;
+  // FillInputAudioFormat(&inputFormat);
+  // FillOutputAudioFormat(&outputFormat);
 
   int32_t alacSize = pcmSize;
-  encoder->Encode(inputFormat, outputFormat, pcmData, alacData, &alacSize);
+
+  int bsize = 352;
+  int frames = 352;
+  int *size  = &alacSize;
+	uint8_t *sample = pcmData;
+  uint8_t **out = &alacData;
+
+  #ifndef min
+  #define min(a,b) (((a) < (b)) ? (a) : (b))
+  #endif
+
+  uint8_t *p;
+	uint32_t *in = (uint32_t*) sample;
+	int count;
+
+	frames = min(frames, bsize);
+
+	// *out = (uint8_t*) malloc(bsize * 4 + 8);
+	p = *out;
+
+	*p++ = (1 << 5);
+	*p++ = 0;
+	*p++ = (1 << 4) | (1 << 1) | ((bsize & 0x80000000) >> 31); // b31
+	*p++ = ((bsize & 0x7f800000) << 1) >> 24;	// b30--b23
+	*p++ = ((bsize & 0x007f8000) << 1) >> 16;	// b22--b15
+	*p++ = ((bsize & 0x00007f80) << 1) >> 8;	// b14--b7
+	*p =   ((bsize & 0x0000007f) << 1);       	// b6--b0
+	*p++ |= (*in &  0x00008000) >> 15;			// LB1 b7
+
+	count = frames - 1;
+
+	while (count--) {
+		// LB1 b6--b0 + LB0 b7
+		*p++ = ((*in & 0x00007f80) >> 7);
+		// LB0 b6--b0 + RB1 b7
+		*p++ = ((*in & 0x0000007f) << 1) | ((*in & 0x80000000) >> 31);
+		// RB1 b6--b0 + RB0 b7
+		*p++ = ((*in & 0x7f800000) >> 23);
+		// RB0 b6--b0 + next LB1 b7
+		*p++ = ((*in & 0x007f0000) >> 15) | ((*(in + 1) & 0x00008000) >> 15);
+
+		in++;
+	}
+
+	// last sample
+	// LB1 b6--b0 + LB0 b7
+	*p++ = ((*in & 0x00007f80) >> 7);
+	// LB0 b6--b0 + RB1 b7
+	*p++ = ((*in & 0x0000007f) << 1) | ((*in & 0x80000000) >> 31);
+	// RB1 b6--b0 + RB0 b7
+	*p++ = ((*in & 0x7f800000) >> 23);
+	// RB0 b6--b0 + next LB1 b7
+	*p++ = ((*in & 0x007f0000) >> 15);
+
+	// when readable size is less than bsize, fill 0 at the bottom
+	count = (bsize - frames) * 4;
+	while (count--)	*p++ = 0;
+
+	// frame footer ??
+	*(p-1) |= 1;
+	*p = (7 >> 1) << 6;
+
+	*size = p - *out + 1;
+  //encoder->Encode(inputFormat, outputFormat, pcmData, alacData, &alacSize);
 
   args.GetReturnValue().Set(Integer::New(isolate, alacSize));
 }

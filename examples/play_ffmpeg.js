@@ -22,6 +22,7 @@ device.on('status', function(status) {
 
   var ffmpeg = spawn(argv.ffmpeg, [
     '-i', argv.file,
+    '-acodec', 'pcm_s16le',
     '-f', 's16le',        // PCM 16bits, little-endian
     '-ar', '44100',       // Sampling rate
     '-ac', 2,             // Stereo
