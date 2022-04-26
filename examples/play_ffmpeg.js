@@ -11,21 +11,22 @@ var AirTunes = require('../lib/'),
 
 console.log('adding device: ' + argv.host + ':' + argv.port);
 var airtunes = new AirTunes();
-var device = airtunes.add(argv.host, argv, 0,  [
-  'cn=0,1,2,3',
-  'da=true',
-  'et=0,3,5',
-  'ft=0x4A7FCA00,0xBC354BD0',
-  'sf=0x98484',
-  'md=0,1,2',
-  'am=AudioAccessory5,1',
-  'pk=lolno',
-  'tp=UDP',
-  'vn=65537',
-  'vs=610.20.41',
-  'ov=15.4.1',
-  'vv=2'
-]);
+argv.txt = [
+    'cn=0,1,2,3',
+    'da=true',
+    'et=0,3,5',
+    'ft=0x4A7FCA00,0xBC354BD0',
+    'sf=0x98484',
+    'md=0,1,2',
+    'am=AudioAccessory5,1',
+    'pk=lolno',
+    'tp=UDP',
+    'vn=65537',
+    'vs=610.20.41',
+    'ov=15.4.1',
+    'vv=2'
+  ]
+var device = airtunes.add(argv.host, argv);
 
 // when the device is online, spawn ffmpeg to transcode the file
 device.on('status', function(status) {
