@@ -3,9 +3,9 @@ node-airtunes2 - a node.js implementation of AirTunes v2
 
 **AirTunes v2 Audio client for Windows, Mac and Linux**
 
-Updated to support Node v14.18.1
+100% Javascript port with modern devices pairing
+Tested on Apple TV HD 5th gen / HomePod mini (with/without passcode, tvOS 15.4.1) , Shairport clones (without passcode)
 
-I'm in a hurry
 --------------
 
 Installation
@@ -54,13 +54,14 @@ Credits
 - [Rogue Amoeba Software, LLC](http://www.rogueamoeba.com/) for AirFoil
 - Julien Blache for this [blog post](http://blog.technologeek.org/airtunes-v2)
 - Apple Inc and [Apple Lossless Audio Codec](http://alac.macosforge.org/)
+- postlin
 
 Usage
 -----
 
 ### Build
 
-`node-gyp configure build`
+`yarn install`
 
 ### Playback
 
