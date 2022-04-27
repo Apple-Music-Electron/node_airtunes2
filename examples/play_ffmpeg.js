@@ -12,7 +12,7 @@ var AirTunes = require('../lib/'),
 console.log('adding device: ' + argv.host + ':' + argv.port);
 var airtunes = new AirTunes();
 argv.txt = [
-    'cn=0,1,2,3',
+    'cn=1,2,3',
     'da=true',
     'et=0,3,5',
     'ft=0x4A7FCA00,0xBC354BD0',
