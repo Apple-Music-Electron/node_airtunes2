@@ -26,6 +26,7 @@
     "async": "^3.2.1",
     "axlsign": "git+https://github.com/wavesplatform/curve25519-js.git",
     "big-integer": "^1.6.25",
+    "crypto-js": "^4.1.1",
     "elliptic": "^6.4.0",
     "js-crypto-aes": "^1.0.4",
     "js-sha1": "^0.4.1",
