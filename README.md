@@ -3,7 +3,7 @@ node-airtunes2 - a node.js implementation of AirTunes v2
 
 **AirTunes v2 Audio client for Windows, Mac and Linux**
 
-100% Javascript port with modern devices pairing
+Port with modern devices pairing
 Tested on Apple TV HD 5th gen / HomePod mini (with/without passcode, tvOS 15.4.1) , Shairport clones (without passcode)
 
 --------------

@@ -32,6 +32,10 @@ var device = airtunes.add(argv.host, argv);
 device.on('status', function(status) {
   console.log('status: ' + status);
 
+  if(status === 'need_password'){
+    device.setPasscode(argv.password);
+  }
+
   if(status !== 'ready')
     return;
 
