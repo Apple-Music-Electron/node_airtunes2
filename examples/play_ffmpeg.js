@@ -1,7 +1,7 @@
 var AirTunes = require('../lib/'),
     spawn = require('child_process').spawn,
     argv = require('optimist')
-      .usage('Usage: $0 --host [host] --port [num] --ffmpeg [path] --file [path] --volume [num] --password [string] --mode [mode] --v2 [no]')
+      .usage('Usage: $0 --host [host] --port [num] --ffmpeg [path] --file [path] --volume [num] --password [string] --mode [mode] --airplay2 [no]')
       .default('port', 5002)
       .default('volume', 50)
       .default('ffmpeg', 'C:\\ffmpeg-4.4-essentials_build\\bin\\ffmpeg.exe')
@@ -12,7 +12,7 @@ var AirTunes = require('../lib/'),
 console.log('adding device: ' + argv.host + ':' + argv.port);
 var airtunes = new AirTunes();
 argv.txt = [
-    'cn=1,2,3',
+    'cn=0,1,2,3',
     'da=true',
     'et=0,3,5',
     'ft=0x4A7FCA00,0xBC354BD0',
