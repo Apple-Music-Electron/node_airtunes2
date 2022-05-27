@@ -8,17 +8,17 @@ Hopefully this works to close [#116](https://github.com/Apple-Music-Electron/App
 node-airtunes2 - a node.js implementation of AirTunes v2
 =======================================================
 
-This package is fork of Laurent Perrin <laurent.perrin@gmail.com> implementation and all credits must go to him! My contribution is in added HomePod compatibility, which was achieved by heartbeat message being sent to HomePod every 60 seconds.
+**AirTunes v2 Audio client for Windows, Mac and Linux**
 
-I have also changed package name to airtunes2 and changed versioning scheme - now we are starting with 1.0.0.
+Port with modern devices pairing
+Tested on Apple TV HD 5th gen / HomePod mini (with/without passcode, tvOS 15.4.1) , Shairport clones (without passcode)
 
-I'm in a hurry
 --------------
 
 Installation
 
 <pre>
-  npm install airtunes
+  npm install airtunes2
 </pre>
 
 The example folder contains several test scripts:
@@ -61,13 +61,14 @@ Credits
 - [Rogue Amoeba Software, LLC](http://www.rogueamoeba.com/) for AirFoil
 - Julien Blache for this [blog post](http://blog.technologeek.org/airtunes-v2)
 - Apple Inc and [Apple Lossless Audio Codec](http://alac.macosforge.org/)
+- postlin
 
 Usage
 -----
 
 ### Build
 
-`node-gyp configure build`
+`yarn install`
 
 ### Playback
 
@@ -151,11 +152,11 @@ Node-airtunes was tested on the following devices:
 * AirFoil Speakers
 * Air Speaker
 * Freebox Server
-* Apple TV
+* Apple TV (only before tvOS 10.2)
 * Zeppelin Air
 * Raspberry PI
 * Bose SoundTouch
-* HomePod
+* HomePod / HomePod mini
 
 Ping me to add more devices to this list.
 

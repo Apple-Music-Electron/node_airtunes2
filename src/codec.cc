@@ -1,11 +1,7 @@
 #include <node.h>
 #include <node_buffer.h>
 #include <v8.h>
-#include <nan.h>
 #include <cstring>
-#include <openssl/aes.h>
-#include <openssl/engine.h>
-#include <openssl/rand.h>
 
 extern "C" {
 #include "aes_utils.h"
@@ -13,13 +9,11 @@ extern "C" {
 
 #include "base64.h"
 
-#include "../alac/ALACEncoder.h"
-#include "../alac/ALACBitUtilities.h"
 
 using namespace v8;
 using namespace node;
 
-static int kBlockSize = 16;
+const int kBlockSize = 16;
 static int kFramesPerPacket = 352;
 
 // These values should be changed at each iteration
@@ -28,61 +22,10 @@ static uint8_t aes_key [] = { 0x14, 0x49, 0x7d, 0xcc, 0x98, 0xe1, 0x37, 0xa8, 0x
 
 namespace nodeairtunes {
 
-void FillInputAudioFormat(AudioFormatDescription *format) {
-  format->mFormatID = kALACFormatLinearPCM;
-  format->mSampleRate = 44100;
-  format->mFormatFlags = 12;
-
-  format->mBytesPerPacket = 4;
-  format->mBytesPerFrame = 4;
-  format->mBitsPerChannel = 16;
-  format->mChannelsPerFrame = 2;
-  format->mFramesPerPacket = 1;
-
-  format->mReserved = 0;
-}
-
-void FillOutputAudioFormat(AudioFormatDescription *format) {
-  format->mFormatID = kALACFormatAppleLossless;
-  format->mSampleRate = 44100;
-  format->mFormatFlags = 1;
-
-  format->mBytesPerPacket = 0;
-  format->mBytesPerFrame = 0;
-  format->mBitsPerChannel = 0;
-  format->mChannelsPerFrame = 2;
-  format->mFramesPerPacket = kFramesPerPacket;
-
-  format->mReserved = 0;
-}
-
-// Creates a new encoder instance and wraps it in a JavaScript object.
-// This encoder is freed when the object is released by the GC.
-//Handle<Value> NewEncoder(const Arguments& args) {
-void NewEncoder(const FunctionCallbackInfo<Value>& args) {
-  Isolate* isolate = Isolate::GetCurrent();
-  EscapableHandleScope scope(isolate);
-
-  AudioFormatDescription outputFormat;
-  FillOutputAudioFormat(&outputFormat);
-
-  ALACEncoder *encoder = new ALACEncoder();
-
-  encoder->SetFrameSize(kFramesPerPacket);
-  encoder->InitializeEncoder(outputFormat);
-
-  Local<ObjectTemplate> encoderClass = ObjectTemplate::New(isolate);
-  encoderClass->SetInternalFieldCount(1);
-
-  // Local<Object> obj = encoderClass->NewInstance();
-  Local<Object> obj = Nan::NewInstance(encoderClass).ToLocalChecked();
-  obj->SetAlignedPointerInInternalField(0, encoder);
-
-  args.GetReturnValue().Set(obj);
-}
 
 void EncodeALAC(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
+  Local<Context> ctx = isolate->GetCurrentContext();
   EscapableHandleScope scope(isolate);
 
   if(args.Length() < 4) {
@@ -90,33 +33,98 @@ void EncodeALAC(const FunctionCallbackInfo<Value>& args) {
     args.GetReturnValue().Set(Null(isolate));
   }
 
-  // Local<Object>wrapper = args[0]->ToObject();
-  Local<Object>wrapper = args[0]->ToObject(Nan::GetCurrentContext()).ToLocalChecked();
-  ALACEncoder *encoder = (ALACEncoder*)wrapper->GetAlignedPointerFromInternalField(0);
+  // Local<Object> wrapper;
+  // args[0]->ToObject(ctx).ToLocal(&wrapper);
+  // ALACEncoder *encoder = (ALACEncoder*)wrapper->GetAlignedPointerFromInternalField(0);
 
   Local<Value> pcmBuffer = args[1];
-  // unsigned char* pcmData = (unsigned char*)Buffer::Data(pcmBuffer->ToObject());
-  unsigned char* pcmData = (unsigned char*)Buffer::Data(pcmBuffer->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
+  Local<Object> pcmObj;
+  pcmBuffer->ToObject(ctx).ToLocal(&pcmObj);
+  unsigned char* pcmData = (unsigned char*)Buffer::Data(pcmObj);
 
   Local<Value> alacBuffer = args[2];
-  // unsigned char* alacData = (unsigned char*)Buffer::Data(alacBuffer->ToObject());
-  unsigned char* alacData = (unsigned char*)Buffer::Data(alacBuffer->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
+  Local<Object> alacObj;
+  alacBuffer->ToObject(ctx).ToLocal(&alacObj);
+  unsigned char* alacData = (unsigned char*)Buffer::Data(alacObj);
 
-  // int32_t pcmSize = args[3]->Int32Value();
-  int32_t pcmSize = args[3]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+  int32_t pcmSize = args[3]->Int32Value(ctx).FromJust();
 
-  AudioFormatDescription inputFormat, outputFormat;
-  FillInputAudioFormat(&inputFormat);
-  FillOutputAudioFormat(&outputFormat);
+  // AudioFormatDescription inputFormat, outputFormat;
+  // FillInputAudioFormat(&inputFormat);
+  // FillOutputAudioFormat(&outputFormat);
 
   int32_t alacSize = pcmSize;
-  encoder->Encode(inputFormat, outputFormat, pcmData, alacData, &alacSize);
+
+  int bsize = 352;
+  int frames = 352;
+  int *size  = &alacSize;
+	uint8_t *sample = pcmData;
+  uint8_t **out = &alacData;
+
+  #ifndef min
+  #define min(a,b) (((a) < (b)) ? (a) : (b))
+  #endif
+
+  uint8_t *p;
+	uint32_t *in = (uint32_t*) sample;
+	int count;
+
+	frames = min(frames, bsize);
+
+	// *out = (uint8_t*) malloc(bsize * 4 + 8);
+	p = *out;
+
+	*p++ = (1 << 5);
+	*p++ = 0;
+	*p++ = (1 << 4) | (1 << 1) | ((bsize & 0x80000000) >> 31); // b31
+	*p++ = ((bsize & 0x7f800000) << 1) >> 24;	// b30--b23
+	*p++ = ((bsize & 0x007f8000) << 1) >> 16;	// b22--b15
+	*p++ = ((bsize & 0x00007f80) << 1) >> 8;	// b14--b7
+	*p =   ((bsize & 0x0000007f) << 1);       	// b6--b0
+	*p++ |= (*in &  0x00008000) >> 15;			// LB1 b7
+
+	count = frames - 1;
+
+	while (count--) {
+		// LB1 b6--b0 + LB0 b7
+		*p++ = ((*in & 0x00007f80) >> 7);
+		// LB0 b6--b0 + RB1 b7
+		*p++ = ((*in & 0x0000007f) << 1) | ((*in & 0x80000000) >> 31);
+		// RB1 b6--b0 + RB0 b7
+		*p++ = ((*in & 0x7f800000) >> 23);
+		// RB0 b6--b0 + next LB1 b7
+		*p++ = ((*in & 0x007f0000) >> 15) | ((*(in + 1) & 0x00008000) >> 15);
+
+		in++;
+	}
+
+	// last sample
+	// LB1 b6--b0 + LB0 b7
+	*p++ = ((*in & 0x00007f80) >> 7);
+	// LB0 b6--b0 + RB1 b7
+	*p++ = ((*in & 0x0000007f) << 1) | ((*in & 0x80000000) >> 31);
+	// RB1 b6--b0 + RB0 b7
+	*p++ = ((*in & 0x7f800000) >> 23);
+	// RB0 b6--b0 + next LB1 b7
+	*p++ = ((*in & 0x007f0000) >> 15);
+
+	// when readable size is less than bsize, fill 0 at the bottom
+	count = (bsize - frames) * 4;
+	while (count--)	*p++ = 0;
+
+	// frame footer ??
+	*(p-1) |= 1;
+	*p = (7 >> 1) << 6;
+
+	*size = p - *out + 1;
+  //encoder->Encode(inputFormat, outputFormat, pcmData, alacData, &alacSize);
 
   args.GetReturnValue().Set(Integer::New(isolate, alacSize));
 }
 
 void EncryptAES(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = v8::Isolate::GetCurrent();
+  Local<Context> ctx = isolate->GetCurrentContext();
   EscapableHandleScope scope(isolate);
 
   if(args.Length() < 2) {
@@ -125,16 +133,18 @@ void EncryptAES(const FunctionCallbackInfo<Value>& args) {
   }
 
   Local<Value> alacBuffer = args[0];
-  unsigned char* alacData = (unsigned char*)Buffer::Data(alacBuffer->ToObject(Nan::GetCurrentContext()).ToLocalChecked());
-  int32_t alacSize = args[1]->Int32Value(Nan::GetCurrentContext()).ToChecked();
+  Local<Object> alacObj;
+  alacBuffer->ToObject(ctx).ToLocal(&alacObj);
+  unsigned char* alacData = (unsigned char*)Buffer::Data(alacObj);
+  int32_t alacSize = args[1]->Int32Value(isolate->GetCurrentContext()).FromJust();
 
   // This will encrypt data in-place
   uint8_t *buf;
   int i = 0, j;
   uint8_t nv[kBlockSize];
 
-  aes_context ctx;
-  aes_set_key(&ctx, aes_key, 128);
+  aes_context aes_ctx;
+  aes_set_key(&aes_ctx, aes_key, 128);
   memcpy(nv, iv, kBlockSize);
 
   while(i + kBlockSize <= alacSize) {
@@ -143,7 +153,7 @@ void EncryptAES(const FunctionCallbackInfo<Value>& args) {
     for(j = 0; j < kBlockSize; j++)
       buf[j] ^= nv[j];
 
-    aes_encrypt(&ctx, buf, buf);
+    aes_encrypt(&aes_ctx, buf, buf);
     memcpy(nv, buf, kBlockSize);
 
     i += kBlockSize;
@@ -152,10 +162,9 @@ void EncryptAES(const FunctionCallbackInfo<Value>& args) {
   args.GetReturnValue().Set(Null(isolate));
 }
 
-void InitCodec(Handle<Object> target) {
+void InitCodec(Local<Object> target) {
   NODE_SET_METHOD(target, "encodeALAC", EncodeALAC);
   NODE_SET_METHOD(target, "encryptAES", EncryptAES);
-  NODE_SET_METHOD(target, "newEncoder", NewEncoder);
 }
 
 } // nodeairtunes namespace
