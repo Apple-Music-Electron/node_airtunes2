@@ -26,7 +26,7 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Build for Linux and Windows
-        run: yarn run build-binaries-electron build-binaries-electron2
+        run: yarn run build-binaries-electron
       # Runs a set of commands using the runners shell
       - name: [Try] Build for macOS
         run: yarn run build-binaries-electron2
