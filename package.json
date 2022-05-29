@@ -19,11 +19,11 @@
   },
   "scripts": {
     "build-binaries-electron": "run-script-os",
-    "build-binaries-electron:win32": "prebuild --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" --download=https://artifacts.electronjs.org/headers/dist/v19.0.0/node-v19.0.0-headers.tar.gz",
-    "build-binaries-electron:linux": "prebuild --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" --download=https://artifacts.electronjs.org/headers/dist/v19.0.0/node-v19.0.0-headers.tar.gz",
-    "build-binaries-electron:darwin": "prebuild --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" --download=https://artifacts.electronjs.org/headers/dist/v19.0.0/node-v19.0.0-headers.tar.gz",
-    "build-binaries-electron2": "prebuild -a arm64 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" --download=https://artifacts.electronjs.org/headers/dist/v19.0.0/node-v19.0.0-headers.tar.gz",
-    "install": "prebuild-install --download=https://artifacts.electronjs.org/headers/dist/v19.0.0/node-v19.0.0-headers.tar.gz || npm run rebuild",
+    "build-binaries-electron:win32": "prebuild --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.0 -t 18.0.3 -t 16.0.7",
+    "build-binaries-electron:linux": "prebuild --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.0 -t 18.0.3",
+    "build-binaries-electron:darwin": "prebuild --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.0 -t 18.0.3",
+    "build-binaries-electron2": "prebuild -a arm64 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.0 -t 18.0.3",  
+    "install": "prebuild-install --runtime=electron --target=18.0.3 || npm run rebuild",
     "rebuild": "node-gyp configure build"
   },
   "licenses": [
@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "optimist": "^0.6.1",
-    "prebuild": "^11.0.3",
+    "prebuild": "git+https://github.com/ciderapp/prebuild.git",
     "request": "^2.83.0",
     "run-script-os": "^1.1.6"
   },
