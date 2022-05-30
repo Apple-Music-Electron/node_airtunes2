@@ -42,7 +42,7 @@ jobs:
           path: prebuilds/
           
       - name: Release Atifact
-      - uses: marvinpinto/action-automatic-releases@v1.2.1
+        uses: marvinpinto/action-automatic-releases@v1.2.1
         with:
           prerelease: false
           files: prebuilds/
