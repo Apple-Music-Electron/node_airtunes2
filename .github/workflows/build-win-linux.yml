@@ -40,7 +40,7 @@ jobs:
           # A file, directory or wildcard pattern that describes what to upload
           path: prebuilds/
       - name: Release Atifact
-      - uses: arvinpinto/action-automatic-releases@v1.2.1
+      - uses: marvinpinto/action-automatic-releases@v1.2.1
         with:
           prerelease: false
           files: prebuilds/
