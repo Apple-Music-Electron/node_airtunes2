@@ -26,15 +26,15 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Build for Windows
-        run: yarn run build-binaries-electron-ci:win32
+        run: yarn run build-binaries-electron:win32
         
       # Runs a set of commands using the runners shell
       - name: Build for Linux
-        run: yarn run build-binaries-electron-ci:linux
+        run: yarn run build-binaries-electron:linux
         
       # Runs a set of commands using the runners shell
       - name: Build for macOS (x86-64)
-        run: yarn run build-binaries-electron-ci:darwin
+        run: yarn run build-binaries-electron:darwin
 
       # Runs a set of commands using the runners shell
       - name: Try build for macOS (ARM)
