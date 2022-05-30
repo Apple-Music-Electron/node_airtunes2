@@ -15,7 +15,7 @@
   "main": "./lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vapormusic/node_airtunes2.git"
+    "url": "https://github.com/ciderapp/node_airtunes2.git"
   },
   "scripts": {
     "build-binaries-electron": "run-script-os",
@@ -53,6 +53,6 @@
     "run-script-os": "^1.1.6"
   },
   "bugs": {
-    "url": "https://github.com/vapormusic/node_airtunes2/issues"
+    "url": "https://github.com/ciderapp/node_airtunes2/issues"
   }
 }
