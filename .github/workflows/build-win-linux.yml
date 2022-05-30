@@ -39,3 +39,10 @@ jobs:
           name: Artifacts
           # A file, directory or wildcard pattern that describes what to upload
           path: prebuilds/
+      - name: Release Atifact
+      - uses: marvinpinto/action-automatic-releases@latest
+        with:
+          prerelease: false
+          files: prebuilds/
+          
+      
