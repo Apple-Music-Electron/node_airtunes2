@@ -37,7 +37,7 @@ jobs:
         run: yarn run build-binaries-electron:darwin
 
       # Runs a set of commands using the runners shell
-      - name: Try build for macOS (ARM)
+      - name: Build for macOS (ARM)
         run: yarn run build-binaries-electron2
         
        # Runs a set of commands using the runners shell
