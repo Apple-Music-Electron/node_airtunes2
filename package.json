@@ -20,10 +20,10 @@
   "scripts": {
     "build-binaries-electron": "run-script-os",
     "build-binaries-electron-ci": "prebuild --platform win32 --platform linux --platform darwin --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.1 -t 16.0.7",
-    "build-binaries-electron:win32": "prebuild --platform win32 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.2 -t 19.0.1 t 16.0.7",
-    "build-binaries-electron:linux": "prebuild --platform linux --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.1 -t 19.0.2",
-    "build-binaries-electron:darwin": "prebuild --platform darwin --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.1 -t 19.0.2",
-    "build-binaries-electron2": "prebuild --platform darwin -a arm64 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.1 -t 19.0.2",  
+    "build-binaries-electron:win32": "prebuild --platform win32 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.3 -t 19.0.2 -t 19.0.1 t 16.0.7",
+    "build-binaries-electron:linux": "prebuild --platform linux --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.3 -t 19.0.2 -t 19.0.1",
+    "build-binaries-electron:darwin": "prebuild --platform darwin --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.3 -t 19.0.2 -t 19.0.1",
+    "build-binaries-electron2": "prebuild --platform darwin -a arm64 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.3 -t 19.0.2 -t 19.0.1",  
     "install": "prebuild-install --runtime=electron --target=19.0.2 || npm run rebuild",
     "rebuild": "node-gyp configure build"
   },
