@@ -1445,10 +1445,9 @@ prebuild-install@^7.1.0:
     tar-fs "^2.0.0"
     tunnel-agent "^0.6.0"
 
-prebuild@^11.0.3:
+"prebuild@git+https://github.com/ciderapp/prebuild.git":
   version "11.0.3"
-  resolved "https://registry.yarnpkg.com/prebuild/-/prebuild-11.0.3.tgz#600bb201b50a26af837f77aeb868df012c096ef2"
-  integrity sha512-0synbTNdYD9nkVFtVl0nbslM6AefnKRcvyvtDwv6qswh4gYCbdWGmir4G7YPPDa3VmKCZADVBYnkqNI3qKJy5Q==
+  resolved "git+https://github.com/ciderapp/prebuild.git#810e501f08d779fe75185414b0419a829149474b"
   dependencies:
     cmake-js "~5.2.0"
     detect-libc "^2.0.0"
