@@ -46,7 +46,9 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Install Dependencies
-        run: yarn install
+        run: |
+              npm config set msvs_version 2017
+              yarn install
 
       # Runs a set of commands using the runners shell
       - name: Build binaries
