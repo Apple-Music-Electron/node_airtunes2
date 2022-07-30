@@ -1,31 +1,35 @@
 var AirTunes = require('../lib/'),
     spawn = require('child_process').spawn,
     argv = require('optimist')
-      .usage('Usage: $0 --host [host] --port [num] --ffmpeg [path] --file [path] --volume [num] --password [string] --mode [mode] --airplay2 [no] --debug [mode]')
+      .usage('Usage: $0 --host [host] --port [num] --ffmpeg [path] --file [path] --volume [num] --password [string] --mode [mode] --airplay2 [1/0] --debug [mode] --ft [featuresHexes] --sf [statusFlags] --et [encryptionTypes] --cn [audioCodecs]')
       .default('port', 5002)
       .default('volume', 50)
       .default('ffmpeg', 'E:\\ffmpeg-20180122-2e96f52-win64-shared\\bin\\ffmpeg.exe')
       .default('file', './wakeup.mp3')
+      .default('ft',"0x4A7FCA00,0xBC354BD0")
+      .default('sf',"0x98484")
+      .default('cn',"0,1,2,3")
+      .default('et',"0,3,5")
       .demand(['host'])
       .argv;
 
 console.log('adding device: ' + argv.host + ':' + argv.port);
 var airtunes = new AirTunes();
 argv.txt = [
-    'cn=0,1,2,3',
-    'da=true',
-    'et=0,3,5',
-    "ft=0x4A7FCA00,0xBC354BD0",
-    "sf=0x98404",
-    'md=0,1,2',
-    'am=AudioAccessory5,1',
-    'pk=lolno',
-    'tp=UDP',
-    'vn=65537',
-    'vs=610.20.41',
-    'ov=15.4.1',
-    'vv=2'
-  ]
+  `cn=${argv.cn}`,
+  'da=true',
+  `et=${argv.et}`,
+  `ft=${argv.ft}`,
+  `sf=${argv.sf}`,
+  'md=0,1,2',
+  'am=AudioAccessory5,1',
+  'pk=lolno',
+  'tp=UDP',
+  'vn=65537',
+  'vs=610.20.41',
+  'ov=15.4.1',
+  'vv=2'
+]
 var device = airtunes.add(argv.host, argv);
 
 // when the device is online, spawn ffmpeg to transcode the file

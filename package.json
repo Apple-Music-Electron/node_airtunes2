@@ -13,6 +13,7 @@
   "version": "2.3.0",
   "author": "vapormusic <vapormusic.service@gmail.com>",
   "main": "./lib/index.js",
+  "bin": "./examples/play_ffmpeg.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/ciderapp/node_airtunes2.git"
@@ -32,6 +33,22 @@
       "type": "BSD"
     }
   ],
+  "pkg": {
+    "scripts": [
+      "lib/homekit/*.js",
+      "lib/*.js"
+    ],
+    "assets": [
+      "build/Release/obj/airtunes/*",
+      "node_modules/curve25519-n2/build/Release/*",
+      "node_modules/sodium/build/Release/*",
+      "node_modules/ed25519/build/Release/*"
+    ],
+    "targets": [
+      "node14-win",
+      "node14-macos-x64",
+      "node14-linux-x64"
+  ]},
   "dependencies": {
     "async": "^3.2.1",
     "axlsign": "git+https://github.com/wavesplatform/curve25519-js.git",
