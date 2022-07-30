@@ -47,7 +47,7 @@ jobs:
       # Runs a single command using the runners shell
       - name: Install Dependencies
         run: |
-              npm config set msvs_version 2019
+              npm config set msvs_version 2022
               yarn install
 
       # Runs a set of commands using the runners shell
