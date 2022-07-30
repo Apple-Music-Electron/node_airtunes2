@@ -1,3 +1,10 @@
+
+Hopefully this works to close [#116](https://github.com/Apple-Music-Electron/Apple-Music-Electron/issues/116) for real this time.
+
+
+
+
+
 node-airtunes2 - a node.js implementation of AirTunes v2
 =======================================================
 

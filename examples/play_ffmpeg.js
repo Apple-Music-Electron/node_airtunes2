@@ -1,7 +1,7 @@
 var AirTunes = require('../lib/'),
     spawn = require('child_process').spawn,
     argv = require('optimist')
-      .usage('Usage: $0 --host [host] --port [num] --ffmpeg [path] --file [path] --volume [num] --password [string] --mode [mode] --airplay2 [no]')
+      .usage('Usage: $0 --host [host] --port [num] --ffmpeg [path] --file [path] --volume [num] --password [string] --mode [mode] --airplay2 [no] --debug [mode]')
       .default('port', 5002)
       .default('volume', 50)
       .default('ffmpeg', 'E:\\ffmpeg-20180122-2e96f52-win64-shared\\bin\\ffmpeg.exe')
@@ -15,8 +15,8 @@ argv.txt = [
     'cn=0,1,2,3',
     'da=true',
     'et=0,3,5',
-    'ft=0x4A7FCA00,0xBC354BD0',
-    'sf=0x98404',
+    "ft=0x4A7FCA00,0xBC354BD0",
+    "sf=0x98404",
     'md=0,1,2',
     'am=AudioAccessory5,1',
     'pk=lolno',
