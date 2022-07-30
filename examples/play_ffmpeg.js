@@ -4,7 +4,7 @@ var AirTunes = require('../lib/'),
       .usage('Usage: $0 --host [host] --port [num] --ffmpeg [path] --file [path] --volume [num] --password [string] --mode [mode] --airplay2 [no]')
       .default('port', 5002)
       .default('volume', 50)
-      .default('ffmpeg', 'C:\\ffmpeg-4.4-essentials_build\\bin\\ffmpeg.exe')
+      .default('ffmpeg', 'E:\\ffmpeg-20180122-2e96f52-win64-shared\\bin\\ffmpeg.exe')
       .default('file', './wakeup.mp3')
       .demand(['host'])
       .argv;
