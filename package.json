@@ -10,20 +10,21 @@
     "audio",
     "cider"
   ],
-  "version": "2.2.1",
+  "version": "2.3.0",
   "author": "vapormusic <vapormusic.service@gmail.com>",
   "main": "./lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/vapormusic/node_airtunes2.git"
+    "url": "https://github.com/ciderapp/node_airtunes2.git"
   },
   "scripts": {
     "build-binaries-electron": "run-script-os",
-    "build-binaries-electron:win32": "prebuild --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 18.0.3 -t 16.0.7",
-    "build-binaries-electron:linux": "prebuild --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 18.0.3",
-    "build-binaries-electron:darwin": "prebuild --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 18.0.3",
-    "build-binaries-electron2": "prebuild -a arm64 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 18.0.3",
-    "install": "prebuild-install --runtime=electron --target=18.0.3 || npm run rebuild",
+    "build-binaries-electron-ci": "prebuild --platform win32 --platform linux --platform darwin --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.1 -t 16.0.7",
+    "build-binaries-electron:win32": "prebuild --platform win32 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.3 -t 18.3.3 -t 16.0.7",
+    "build-binaries-electron:linux": "prebuild --platform linux --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.3 -t 18.3.3",
+    "build-binaries-electron:darwin": "prebuild --platform darwin --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.3 -t 18.3.3",
+    "build-binaries-electron2": "prebuild --platform darwin -a arm64 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.3 -t 18.3.3",  
+    "install": "prebuild-install --runtime=electron --target=19.0.2 || npm run rebuild",
     "rebuild": "node-gyp configure build"
   },
   "licenses": [
@@ -54,11 +55,11 @@
   },
   "devDependencies": {
     "optimist": "^0.6.1",
-    "prebuild": "^11.0.3",
+    "prebuild": "^11.0.4",
     "request": "^2.83.0",
     "run-script-os": "^1.1.6"
   },
   "bugs": {
-    "url": "https://github.com/vapormusic/node_airtunes2/issues"
+    "url": "https://github.com/ciderapp/node_airtunes2/issues"
   }
 }
