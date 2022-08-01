@@ -25,7 +25,7 @@
     "build-binaries-electron:linux": "prebuild --platform linux --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.3 -t 18.3.3",
     "build-binaries-electron:darwin": "prebuild --platform darwin --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.3 -t 18.3.3",
     "build-binaries-electron2": "prebuild --platform darwin -a arm64 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 19.0.3 -t 18.3.3",
-    "install": "prebuild-install || npm run rebuild",
+    "install": "prebuild-install || (npm run rebuild || (true || VER>NUL))",
     "rebuild": "node-gyp configure build"
   },
   "licenses": [
@@ -51,13 +51,13 @@
     ]
   },
   "dependencies": {
+    "@noble/ed25519": "^1.6.1",
     "async": "^3.2.1",
     "axlsign": "git+https://github.com/wavesplatform/curve25519-js.git",
     "big-integer": "^1.6.25",
     "chacha-js": "https://github.com/davidwu226/chacha20poly1305",
     "crypto-js": "^4.1.1",
-    "curve25519-n2": "git+https://github.com/ciderapp/node-curve25519",
-    "ed25519": "git+https://github.com/ciderapp/ed25519",
+    "curve25519-js": "^0.0.4",
     "elliptic": "^6.4.0",
     "fast-srp-hap": "^2.0.4",
     "js-crypto-aes": "^1.0.4",
