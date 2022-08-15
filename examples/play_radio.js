@@ -5,7 +5,7 @@ var AirTunes = require('../lib/'),
       .default('port', 5002)
       .default('volume', 50)
       .default('ffmpeg', 'E:\\ffmpeg-20180122-2e96f52-win64-shared\\bin\\ffmpeg.exe')
-      .default('file', './wakeup.mp3')
+      .default('file', 'http://radio.plaza.one/mp3_low')
       .default('ft',"0x7F8AD0,0x38BCF46")
       .default('sf',"0x98404")
       .default('cn',"0,1,2,3")
@@ -50,7 +50,7 @@ argv.txt = [
 //   'gcgl=0',
 //   'pk=no'
 // ]
-// var device = airtunes.add(argv.host, argv);
+var device = airtunes.add(argv.host, argv);
 
 // when the device is online, spawn ffmpeg to transcode the file
 device.on('status', function(status) {
