@@ -5,9 +5,9 @@ var AirTunes = require('../lib/'),
       .default('port', 5002)
       .default('volume', 50)
       .default('ffmpeg', 'E:\\ffmpeg-20180122-2e96f52-win64-shared\\bin\\ffmpeg.exe')
-      .default('file', 'http://radio.plaza.one/mp3_low')
+      .default('file', './wakeup.mp3')
       .default('ft',"0x7F8AD0,0x38BCF46")
-      .default('sf',"0x98484")
+      .default('sf',"0x98404")
       .default('cn',"0,1,2,3")
       .default('et',"0,3,5")
       .demand(['host'])
@@ -16,26 +16,41 @@ const fetch = require('electron-fetch').default
 console.log('adding device: ' + argv.host + ':' + argv.port);
 var airtunes = new AirTunes();
 argv.txt = [
-  'acl=0',
-  'deviceid=80:8A:BD:64:2A:41',
-  'features=0x7F8AD0,0x38BCF46',
-  'rsf=0x3',
-  'fv=p20.T-KSU2EUABC-2002.0',
-  'at=0x1',
-  'flags=0xc4',
-  'model=UAU7000',
-  'company=Samsung',
-  'manufacturer=Samsung',
-  'serialNumber=0EYL3NGT100060Z',
-  'protovers=1.1',
-  'srcvers=377.30.02',
-  'pi=B3:38:3B:A4:94:27',
-  'psi=00000000-0000-0000-0000-B3383BA49427',
-  'gid=00000000-0000-0000-0000-B3383BA49427',
-  'gcgl=0',
-  'pk=4ae5130cae39602219b3b1be771a9671dca995c5a7be7021d7d92e16c491233c'
+  `cn=${argv.cn}`,
+  'da=true',
+  `et=${argv.et}`,
+  `ft=${argv.ft}`,
+  `sf=${argv.sf}`,
+  'md=0,1,2',
+  'am=AudioAccessory5,1',
+  'pk=lolno',
+  'tp=UDP',
+  'vn=65537',
+  'vs=610.20.41',
+  'ov=15.4.1',
+  'vv=2'
 ]
-var device = airtunes.add(argv.host, argv);
+// argv.txt = [
+//   'acl=0',
+//   'deviceid=nah',
+//   'features=0x7F8AD0,0x38BCF46',
+//   'rsf=0x3',
+//   'fv=p20.T-KSU2EUABC-2002.0',
+//   'at=0x1',
+//   'flags=0xc4',
+//   'model=UAU7000',
+//   'company=Samsung',
+//   'manufacturer=Samsung',
+//   'serialNumber=wasd',
+//   'protovers=1.1',
+//   'srcvers=377.30.02',
+//   'pi=none',
+//   'psi=wasd',
+//   'gid=wasd',
+//   'gcgl=0',
+//   'pk=no'
+// ]
+// var device = airtunes.add(argv.host, argv);
 
 // when the device is online, spawn ffmpeg to transcode the file
 device.on('status', function(status) {
@@ -49,22 +64,23 @@ device.on('status', function(status) {
     return;
 
   if(status == 'ready') {
-    setInterval(()=>{
-      fetch("https://api.plaza.one/status")
-      .then((res) => res.json()).then((radiostatus) => {
-        airtunes.setTrackInfo(device.key, radiostatus.song.title, radiostatus.song.artist, radiostatus.song.album )
-        fetch(radiostatus.song.artwork_src)
-        .then((res) => res.buffer())
-        .then((buffer) => {
-          airtunes.setArtwork(device.key, buffer, "image/jpeg");
+      setInterval(()=>{
+        fetch("https://api.plaza.one/status")
+        .then((res) => res.json()).then((radiostatus) => {
+          airtunes.setTrackInfo(device.key, radiostatus.song.title, radiostatus.song.artist, radiostatus.song.album )
+          fetch(radiostatus.song.artwork_src)
+          .then((res) => res.buffer())
+          .then((buffer) => {
+            airtunes.setArtwork(device.key, buffer, "image/jpeg");
+          })
+          .catch((err) => {
+            console.log(err);
+          });
         })
         .catch((err) => {
           console.log(err);
-        });
-      }).catch((err) => {
-        console.log(err);
-      });    
-    },10000)
+        });    
+      },10000)
   }
 
   var ffmpeg = spawn(argv.ffmpeg, [
