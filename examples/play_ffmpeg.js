@@ -7,7 +7,7 @@ var AirTunes = require('../lib/'),
       .default('ffmpeg', 'E:\\ffmpeg-20180122-2e96f52-win64-shared\\bin\\ffmpeg.exe')
       .default('file', './wakeup.mp3')
       .default('ft',"0x7F8AD0,0x38BCF46")
-      .default('sf',"0x98484")
+      .default('sf',"0x98404")
       .default('cn',"0,1,2,3")
       .default('et',"0,3,5")
       .demand(['host'])

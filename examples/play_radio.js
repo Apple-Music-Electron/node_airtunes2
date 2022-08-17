@@ -50,6 +50,7 @@ argv.txt = [
 //   'gcgl=0',
 //   'pk=no'
 // ]
+//argv.txt = ['tp=UDP', 'sm=false', 'sv=false', 'ek=1', 'et=0,1', 'md=0,1,2', 'cn=0,1', 'ch=2', 'ss=16', 'sr=44100', 'pw=false', 'vn=3', 'txtvers=1']
 var device = airtunes.add(argv.host, argv);
 
 // when the device is online, spawn ffmpeg to transcode the file
