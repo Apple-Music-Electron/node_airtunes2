@@ -1,3 +1,4 @@
+//node 'c:\Github data\node_airtunes2\examples\play_radio.js'--host 192.168.0.194 --port 40399 --password 9519 --airplay2 1 --debug true --mode 1
 var AirTunes = require('../lib/'),
     spawn = require('child_process').spawn,
     argv = require('optimist')
@@ -15,41 +16,41 @@ var AirTunes = require('../lib/'),
 const fetch = require('electron-fetch').default
 console.log('adding device: ' + argv.host + ':' + argv.port);
 var airtunes = new AirTunes();
-argv.txt = [
-  `cn=${argv.cn}`,
-  'da=true',
-  `et=${argv.et}`,
-  `ft=${argv.ft}`,
-  `sf=${argv.sf}`,
-  'md=0,1,2',
-  'am=AudioAccessory5,1',
-  'pk=lolno',
-  'tp=UDP',
-  'vn=65537',
-  'vs=610.20.41',
-  'ov=15.4.1',
-  'vv=2'
-]
 // argv.txt = [
-//   'acl=0',
-//   'deviceid=nah',
-//   'features=0x7F8AD0,0x38BCF46',
-//   'rsf=0x3',
-//   'fv=p20.T-KSU2EUABC-2002.0',
-//   'at=0x1',
-//   'flags=0xc4',
-//   'model=UAU7000',
-//   'company=Samsung',
-//   'manufacturer=Samsung',
-//   'serialNumber=wasd',
-//   'protovers=1.1',
-//   'srcvers=377.30.02',
-//   'pi=none',
-//   'psi=wasd',
-//   'gid=wasd',
-//   'gcgl=0',
-//   'pk=no'
+//   `cn=${argv.cn}`,
+//   'da=true',
+//   `et=${argv.et}`,
+//   `ft=${argv.ft}`,
+//   `sf=${argv.sf}`,
+//   'md=0,1,2',
+//   'am=AudioAccessory5,1',
+//   'pk=lolno',
+//   'tp=UDP',
+//   'vn=65537',
+//   'vs=610.20.41',
+//   'ov=15.4.1',
+//   'vv=2'
 // ]
+argv.txt = [
+  'acl=0',
+  'deviceid=nah',
+  'features=0x7F8AD0,0x38BCF46',
+  'rsf=0x3',
+  'fv=p20.T-KSU2EUABC-2002.0',
+  'at=0x1',
+  'flags=0xc4',
+  'model=UAU7000',
+  'company=Samsung',
+  'manufacturer=Samsung',
+  'serialNumber=wasd',
+  'protovers=1.1',
+  'srcvers=377.30.02',
+  'pi=none',
+  'psi=wasd',
+  'gid=wasd',
+  'gcgl=0',
+  'pk=no'
+]
 //argv.txt = ['tp=UDP', 'sm=false', 'sv=false', 'ek=1', 'et=0,1', 'md=0,1,2', 'cn=0,1', 'ch=2', 'ss=16', 'sr=44100', 'pw=false', 'vn=3', 'txtvers=1']
 var device = airtunes.add(argv.host, argv);
 
