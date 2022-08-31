@@ -1,4 +1,4 @@
-const mdns = require('mdns');
+const mdns = require('mdns-js');
 
 const browser = mdns.createBrowser(mdns.tcp('raop'));
 browser.on('serviceUp', service => {
