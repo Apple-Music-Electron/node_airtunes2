@@ -48,8 +48,10 @@ Core Audio is the name Apple gives to iOS/OS X low-level sound API. node-airtune
 
 Credits
 -------
-
-- [pyatv](https://github.com/postlund/pyatv)
+- https://github.com/SteeBono/airplayreceiver/wiki/AirPlay2-Protocol
+- https://emanuelecozzi.net/docs/airplay2
+- Evan Coleman for [node-appletv](https://github.com/evandcoleman/node-appletv)
+- Pierre Ståhl for [pyatv](https://github.com/postlund/pyatv)
 - [The Airtunes 2 Team](http://git.zx2c4.com/Airtunes2/about/)
 - Cl&eacute;ment Vasseur for [Air Speaker](https://github.com/nto/AirSpeaker)
 - [Rogue Amoeba Software, LLC](http://www.rogueamoeba.com/) for AirFoil
