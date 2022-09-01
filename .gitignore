@@ -2,3 +2,11 @@ build
 node_modules
 yarn.lock
 yarn.lock
+airtunes2.exe
+airtunes2-linux
+airtunes2-macos
+airtunes2-win.exe
+yarn.lock
+prebuilds/airtunes2-v2.3.0-electron-v99-win32-x64.tar.gz
+prebuilds/airtunes2-v2.3.0-electron-v103-win32-x64.tar.gz
+prebuilds/airtunes2-v2.3.0-electron-v106-win32-x64.tar.gz

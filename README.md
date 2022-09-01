@@ -1,14 +1,7 @@
-
-Hopefully this works to close [#116](https://github.com/Apple-Music-Electron/Apple-Music-Electron/issues/116) for real this time.
-
-
-
-
-
-node-airtunes2 - a node.js implementation of AirTunes v2
+node-airtunes2 - a node.js implementation of AirTunes v2 (AirPlay 1) / AirPlay 2
 =======================================================
 
-**AirTunes v2 Audio client for Windows, Mac and Linux**
+**AirPlay Audio client for Windows, Mac and Linux**
 
 Port with modern devices pairing
 Tested on Apple TV HD 5th gen / HomePod mini (with/without passcode, tvOS 15.4.1) , Shairport clones (without passcode)
@@ -56,6 +49,7 @@ Core Audio is the name Apple gives to iOS/OS X low-level sound API. node-airtune
 Credits
 -------
 
+- [pyatv](https://github.com/postlund/pyatv)
 - [The Airtunes 2 Team](http://git.zx2c4.com/Airtunes2/about/)
 - Cl&eacute;ment Vasseur for [Air Speaker](https://github.com/nto/AirSpeaker)
 - [Rogue Amoeba Software, LLC](http://www.rogueamoeba.com/) for AirFoil
