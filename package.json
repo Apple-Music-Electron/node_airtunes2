@@ -10,7 +10,7 @@
     "audio",
     "cider"
   ],
-  "version": "2.3.2",
+  "version": "2.3.3",
   "author": "vapormusic <vapormusic.service@gmail.com>",
   "main": "./lib/index.js",
   "bin": "./examples/play_ffmpeg.js",

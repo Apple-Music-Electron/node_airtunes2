@@ -9,6 +9,13 @@ extern "C" {
 
 #include "base64.h"
 
+#ifdef _MSC_VER
+#include "../alac/ALACEncoder.h"
+#include "../alac/ALACBitUtilities.h"
+#else
+#include "../alac_unix/ALACEncoder.h"
+#include "../alac_unix/ALACBitUtilities.h"
+#endif
 
 using namespace v8;
 using namespace node;
@@ -22,8 +29,96 @@ static uint8_t aes_key [] = { 0x14, 0x49, 0x7d, 0xcc, 0x98, 0xe1, 0x37, 0xa8, 0x
 
 namespace nodeairtunes {
 
+void FillInputAudioFormat(AudioFormatDescription *format) {
+  format->mFormatID = kALACFormatLinearPCM;
+  format->mSampleRate = 44100;
+  format->mFormatFlags = 12;
+
+  format->mBytesPerPacket = 4;
+  format->mBytesPerFrame = 4;
+  format->mBitsPerChannel = 16;
+  format->mChannelsPerFrame = 2;
+  format->mFramesPerPacket = 1;
+
+  format->mReserved = 0;
+}
+
+void FillOutputAudioFormat(AudioFormatDescription *format) {
+  format->mFormatID = kALACFormatAppleLossless;
+  format->mSampleRate = 44100;
+  format->mFormatFlags = 1;
+
+  format->mBytesPerPacket = 0;
+  format->mBytesPerFrame = 0;
+  format->mBitsPerChannel = 0;
+  format->mChannelsPerFrame = 2;
+  format->mFramesPerPacket = kFramesPerPacket;
+
+  format->mReserved = 0;
+}
+
+// Creates a new encoder instance and wraps it in a JavaScript object.
+// This encoder is freed when the object is released by the GC.
+//Handle<Value> NewEncoder(const Arguments& args) {
+void NewEncoder(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  EscapableHandleScope scope(isolate);
+
+  AudioFormatDescription outputFormat;
+  FillOutputAudioFormat(&outputFormat);
+
+  ALACEncoder *encoder = new ALACEncoder();
+
+  encoder->SetFrameSize(kFramesPerPacket);
+  encoder->InitializeEncoder(outputFormat);
+
+  Local<ObjectTemplate> encoderClass = ObjectTemplate::New(isolate);
+  encoderClass->SetInternalFieldCount(1);
+
+  Local<Object> obj;
+  encoderClass->NewInstance(isolate->GetCurrentContext()).ToLocal(&obj);
+  obj->SetAlignedPointerInInternalField(0, encoder);
+
+  args.GetReturnValue().Set(obj);
+}
 
 void EncodeALAC(const FunctionCallbackInfo<Value>& args) {
+  Isolate* isolate = Isolate::GetCurrent();
+  Local<Context> ctx = isolate->GetCurrentContext();
+  EscapableHandleScope scope(isolate);
+
+  if(args.Length() < 4) {
+    printf("expected: EncodeALAC(encoder, pcmData, pcmSize, alacData, alacSize)\n");
+    args.GetReturnValue().Set(Null(isolate));
+  }
+
+  Local<Object> wrapper;
+  args[0]->ToObject(ctx).ToLocal(&wrapper);
+  ALACEncoder *encoder = (ALACEncoder*)wrapper->GetAlignedPointerFromInternalField(0);
+
+  Local<Value> pcmBuffer = args[1];
+  Local<Object> pcmObj;
+  pcmBuffer->ToObject(ctx).ToLocal(&pcmObj);
+  unsigned char* pcmData = (unsigned char*)Buffer::Data(pcmObj);
+
+  Local<Value> alacBuffer = args[2];
+  Local<Object> alacObj;
+  alacBuffer->ToObject(ctx).ToLocal(&alacObj);
+  unsigned char* alacData = (unsigned char*)Buffer::Data(alacObj);
+
+  int32_t pcmSize = args[3]->Int32Value(ctx).FromJust();
+
+  AudioFormatDescription inputFormat, outputFormat;
+  FillInputAudioFormat(&inputFormat);
+  FillOutputAudioFormat(&outputFormat);
+
+  int32_t alacSize = pcmSize;
+  encoder->Encode(inputFormat, outputFormat, pcmData, alacData, &alacSize);
+
+  args.GetReturnValue().Set(Integer::New(isolate, alacSize));
+}
+
+void EncodeALACFree(const FunctionCallbackInfo<Value>& args) {
   Isolate* isolate = Isolate::GetCurrent();
   Local<Context> ctx = isolate->GetCurrentContext();
   EscapableHandleScope scope(isolate);
@@ -163,8 +258,10 @@ void EncryptAES(const FunctionCallbackInfo<Value>& args) {
 }
 
 void InitCodec(Local<Object> target) {
+  NODE_SET_METHOD(target, "encodeALACFree", EncodeALACFree);
   NODE_SET_METHOD(target, "encodeALAC", EncodeALAC);
   NODE_SET_METHOD(target, "encryptAES", EncryptAES);
+  NODE_SET_METHOD(target, "newEncoder", NewEncoder);
 }
 
 } // nodeairtunes namespace
