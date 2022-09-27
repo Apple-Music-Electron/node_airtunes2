@@ -31,10 +31,7 @@
                           "ClCompile": {
                               "LanguageStandard": "stdcpp17"
                            }
-                    },"msvs_settings": {
-            "VCCLCompilerTool": {
-              "AdditionalOptions": [ "-std:c++17", ],
-            },
+                    },
                     'sources': [
                     ],
                 }],
