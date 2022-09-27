@@ -27,6 +27,14 @@
                 }],
                 ['OS=="win"', {
                     'include_dirs': ['C:\\Program Files\\OpenSSL-Win64\\include\\'],
+                    "msbuild_settings": {
+                          "ClCompile": {
+                              "LanguageStandard": "stdcpp17"
+                           }
+                    },"msvs_settings": {
+            "VCCLCompilerTool": {
+              "AdditionalOptions": [ "-std:c++17", ],
+            },
                     'sources': [
                     ],
                 }],
