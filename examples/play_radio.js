@@ -4,8 +4,8 @@ var AirTunes = require('../lib/'),
     argv = require('optimist')
       .usage('Usage: $0 --host [host] --port [num] --ffmpeg [path] --file [path] --volume [num] --password [string] --mode [mode] --airplay2 [1/0] --debug [mode] --ft [featuresHexes] --sf [statusFlags] --et [encryptionTypes] --cn [audioCodecs]')
       .default('port', 5002)
-      .default('volume', 50)
-      .default('ffmpeg', 'E:\\ffmpeg-20180122-2e96f52-win64-shared\\bin\\ffmpeg.exe')
+      .default('volume', 10)
+      .default('ffmpeg', 'C:\\ffmpeg\\bin\\ffmpeg.exe')
       .default('file', 'http://radio.plaza.one/mp3_low')
       .default('ft',"0x7F8AD0,0x38BCF46")
       .default('sf',"0x98404")
@@ -52,21 +52,21 @@ var airtunes = new AirTunes();
 //   'gcgl=0',
 //   'pk=no'
 // ]
-argv.txt = [
-  "cn=0,1,2,3",
-  "da=true",
-  "et=0,3,5",
-  "ft=0x5A7FFFF7,0xE",
-  "md=0,1,2",
-  "tp=UDP",
-  "vs=220.68",
-  "vv=2",
-  "vn=65537",
-  "am=AppleTV3,1",
-  "sf=0x4",
-  "pk=ee31f83c88a71219a6fcf9bee0da9bc22620588f5a15a6145553504df9649e5c"
-]
-//argv.txt = ['tp=UDP', 'sm=false', 'sv=false', 'ek=1', 'et=0,1', 'md=0,1,2', 'cn=0,1', 'ch=2', 'ss=16', 'sr=44100', 'pw=false', 'vn=3', 'txtvers=1']
+// argv.txt = [
+//   "cn=0,1,2,3",
+//   "da=true",
+//   "et=0,3,5",
+//   "ft=0x5A7FFFF7,0xE",
+//   "md=0,1,2",
+//   "tp=UDP",
+//   "vs=220.68",
+//   "vv=2",
+//   "vn=65537",
+//   "am=AppleTV3,1",
+//   "sf=0x4",
+//   "pk=ee31f83c88a71219a6fcf9bee0da9bc22620588f5a15a6145553504df9649e5c"
+// ]
+argv.txt = ['tp=UDP', 'sm=false', 'sv=false', 'ek=1', 'et=0,1', 'md=0,1,2', 'cn=0,1', 'ch=2', 'ss=16', 'sr=44100', 'pw=false', 'vn=3', 'txtvers=1']
 // argv["forceAlac"] = false
 var device = airtunes.add(argv.host, argv);
 
