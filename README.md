@@ -153,6 +153,7 @@ Node-airtunes was tested on the following devices:
 * Raspberry PI
 * Bose SoundTouch
 * HomePod / HomePod mini
+* Roku, Samsung, LG TVs
 
 Ping me to add more devices to this list.
 
