@@ -99,6 +99,16 @@ device.on('status', function(status) {
           console.log(err);
         });    
       },10000)
+
+      setInterval(()=>{
+        fetch("https://api.plaza.one/status")
+        .then((res) => res.json()).then((radiostatus) => {
+          airtunes.setProgress(device.key, radiostatus.song.position, radiostatus.song.length)
+        })
+        .catch((err) => {
+          console.log(err);
+        });    
+      },1000)
   }
 
   var ffmpeg = spawn(argv.ffmpeg, [
