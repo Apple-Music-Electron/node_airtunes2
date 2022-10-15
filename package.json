@@ -30,7 +30,7 @@
   },
   "licenses": [
     {
-      "type": "BSD"
+      "type": "AGPLv3"
     }
   ],
   "pkg": {
