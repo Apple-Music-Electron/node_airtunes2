@@ -72,6 +72,7 @@
     "yargs": "^9.0.1"
   },
   "devDependencies": {
+    "node-abi": "^3.30.0",
     "optimist": "^0.6.1",
     "prebuild": "git+https://github.com/ciderapp/prebuild.git",
     "request": "^2.83.0",
