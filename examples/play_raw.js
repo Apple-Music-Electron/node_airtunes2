@@ -1,5 +1,5 @@
 //node 'c:\Github data\node_airtunes2\examples\play_radio.js'--host 192.168.0.194 --port 40399 --password 9519 --airplay2 1 --debug true --mode 1
-var AirTunes = require('../lib/'),
+var AirTunes = require('../lib'),
     spawn = require('child_process').spawn,
     argv = require('optimist')
       .usage('Usage: $0 --host [host] --port [num] --ffmpeg [path] --file [path] --volume [num] --password [string] --mode [mode] --airplay2 [1/0] --debug [mode] --ft [featuresHexes] --sf [statusFlags] --et [encryptionTypes] --cn [audioCodecs]')
@@ -82,55 +82,13 @@ device.on('status', function(status) {
     return;
 
   if(status == 'ready') {
-      setInterval(()=>{
-        fetch("https://api.plaza.one/status")
-        .then((res) => res.json()).then((radiostatus) => {
-          airtunes.setTrackInfo(device.key, radiostatus.song.title, radiostatus.song.artist, radiostatus.song.album )
-          fetch(radiostatus.song.artwork_src)
-          .then((res) => res.buffer())
-          .then((buffer) => {
-            airtunes.setArtwork(device.key, buffer, "image/jpeg");
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-        });    
-      },10000)
+    var fs = require('fs');
 
-      setInterval(()=>{
-        fetch("https://api.plaza.one/status")
-        .then((res) => res.json()).then((radiostatus) => {
-          airtunes.setProgress(device.key, radiostatus.song.position, radiostatus.song.length)
-        })
-        .catch((err) => {
-          console.log(err);
-        });    
-      },1000)
+      var data = fs.readFileSync("F:\\node_airtunes2_cider\\examples\\mirrors.raw");
+      airtunes.circularBuffer.write(data)
   }
 
-  var ffmpeg = spawn(argv.ffmpeg, [
-    '-i', argv.file,
-    '-acodec', 'pcm_s16le',
-    '-f', 's16le',        // PCM 16bits, little-endian
-    '-ar', '44100',       // Sampling rate
-    '-ac', 2,             // Stereo
-    'pipe:1'              // Output on stdout
-  ]);
 
-  // pipe data to AirTunes
-  ffmpeg.stdout.pipe(airtunes);
-
-  // detect if ffmpeg was not spawned correctly
-  ffmpeg.stderr.setEncoding('utf8');
-  ffmpeg.stderr.on('data', function(data) {
-    if(/^execvp\(\)/.test(data)) {
-      console.log('failed to start ' + argv.ffmpeg);
-      process.exit(1);
-    }
-  });
 });
 
 // monitor buffer events
