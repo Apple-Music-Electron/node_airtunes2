@@ -30,14 +30,12 @@
   ],
   "dependencies": {
     "async": "^3.2.1",
-    "prebuild-install": "^7.0.0"
+    "prebuild-install": "git+https://github.com/ciderapp/prebuild-install.git"
   },
   "devDependencies": {
-    "lame": "github:suldashi/node-lame",
-    "mdns": "^2.7.2",
     "optimist": "^0.6.1",
     "request": "^2.83.0",
-    "prebuild": "^11.0.3",
+    "prebuild": "git+https://github.com/ciderapp/prebuild.git",
     "run-script-os": "^1.1.6"
   },
   "bugs": {
