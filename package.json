@@ -10,7 +10,7 @@
     "audio",
     "cider"
   ],
-  "version": "2.3.8",
+  "version": "2.3.9",
   "author": "vapormusic <vapormusic.service@gmail.com>",
   "main": "./lib/index.js",
   "bin": "./examples/play_stdin.js",
@@ -26,7 +26,8 @@
     "build-binaries-electron:darwin": "prebuild --platform darwin --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 22.0.0 -t 21.0.0 -t 20.1.0 -t 19.0.3 -t 18.3.3",
     "build-binaries-electron2": "prebuild --platform darwin -a arm64 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 22.0.0 -t 21.0.0 -t 20.1.0 -t 19.0.3 -t 18.3.3",
     "install": "prebuild-install || (npm run rebuild || (true || VER>NUL))",
-    "rebuild": "node-gyp configure build"
+    "rebuild": "node-gyp configure build",
+    "vaportest": "node examples\\play_radio.js --host 192.168.100.12 --port 7000  --debug true --mode 1 --airplay2 1"
   },
   "licenses": [
     {
@@ -42,16 +43,17 @@
       "build/Release/obj/airtunes/*",
       "node_modules/curve25519-n2/build/Release/*",
       "node_modules/sodium/build/Release/*",
-      "node_modules/ed25519/build/Release/*"
+      "node_modules/ed25519/build/Release/*",
+      "node_modules/uWebSockets.js/uws_win32_x64_83.node",
+      "node_modules/uWebSockets.js/uws.js"
     ],
     "targets": [
-      "node14-win",
-      "node14-macos-x64",
-      "node14-linux-x64"
+      "node14-win"
     ]
   },
   "dependencies": {
     "@noble/ed25519": "^1.6.1",
+    "arraybuffer-to-string": "^1.0.2",
     "async": "^3.2.1",
     "axlsign": "git+https://github.com/wavesplatform/curve25519-js.git",
     "big-integer": "^1.6.25",
@@ -64,10 +66,13 @@
     "js-crypto-aes": "^1.0.4",
     "js-sha1": "^0.4.1",
     "lodash": "^4.17.4",
+    "naudiodon": "https://github.com/vapormusic/naudiodon",
     "parse-raw-http": "0.0.1",
+    "pkg": "^5.8.0",
     "prebuild-install": "git+https://github.com/ciderapp/prebuild-install.git",
     "python-struct": "^1.1.3",
     "simple-plist": "^1.3.1",
+    "uWebSockets.js": "uNetworking/uWebSockets.js#v20.10.0",
     "utf-8-validate": "^6.0.0",
     "varint": "^6.0.0",
     "ws": "^8.11.0",
