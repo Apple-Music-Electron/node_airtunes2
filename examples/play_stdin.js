@@ -187,106 +187,23 @@ airtunes.on('device', function(key, status, desc) {
     status: status,
     desc: desc
   }
-  if(wsConnection != null){
-   
-  wsConnection.send(JSON.stringify(status_json));
+  if(worker != null){
+    worker.postMessage(JSON.stringify(status_json));
   }
   console.log("deviceStatus", key, status, desc);
-  //process.stdout.write(JSON.stringify(status_json))
 })
-console.log("welcome");
-// require('uWebSockets.js').App({
- 
-  
-// }).ws('/*', {
- 
-//   // /* There are many common helper features */
-//   // idleTimeout: 30,
-//   // maxBackpressure: 1024,
-//   // maxPayloadLength: 512,
-//   // compression: DEDICATED_COMPRESSOR_3KB,
- 
-//   /* For brevity we skip the other events (upgrade, open, ping, pong, close) */
-//   message: (ws, message, isBinary) => {
-//     /* You can do app.publish('sensors/home/temperature', '22C') kind of pub/sub as well */
-//     wsConnection = ws;
-//     var parsed_data = JSON.parse(ab2str(message));
-//     /* Here we echo the message back, using compression if available */
-//     if (parsed_data.type == "addDevices") {
-//       // Sample data for adding devices:
-//       //'{"type":"addDevices",
-//       // "host":"192.168.3.4",
-//       // "args":{"port":7000,
-//       // "volume":50,
-//       // "password":3000,
-//       // "txt":["tp=UDP","sm=false","sv=false","ek=1","et=0,1","md=0,1,2","cn=0,1","ch=2","ss=16","sr=44100","pw=false","vn=3","txtvers=1"],
-//       // "airplay2":1,
-//       // "debug":true,
-//       // "forceAlac":false}}'
-//       airtunes.add(parsed_data.host, parsed_data.args);
-//     } else if (parsed_data.type == "setVolume"){
-//         // Sample data for setting volume:
-//         // {"type":"setVolume",
-//         //  "devicekey": "192.168.3.4:7000",
-//         //  "volume":30}
-//         airtunes.setVolume(parsed_data.devicekey, parsed_data.volume,null);
-//     } else if (parse.type == "setProgress"){
-//         // Sample data for setting progress:
-//         // {"type":"setProgress",
-//         //  "devicekey": "192.168.3.4:7000",
-//         //  "progress": 0,
-//         //  "duration": 0}
-//         airtunes.setProgress(parsed_data.devicekey, parsed_data.progress, parsed_data.duration,null);
-//     } else if (parse.type == "setArtwork"){
-//         // Sample data for setting artwork:
-//         // {"type":"setArtwork",
-//         //  "devicekey": "192.168.3.4:7000",
-//         //  "contentType" : "image/png";
-//         //  "artwork": "hex data"}
-//         airtunes.setArtwork(parsed_data.devicekey, Buffer.from(parsed_data.artwork,"hex"),null);
-//     } else if (parse.type == "setTrackInfo"){
-//         // Sample data for setting track info:
-//         // {"type":"setTrackInfo",
-//         //  "devicekey": "192.168.3.4:7000",
-//         //  "artist": "John Doe",
-//         //  "album": "John Doe Album",
-//         //  "name": "John Doe Song"}
-//         airtunes.setTrackInfo(parsed_data.devicekey, parsed_data.name, parsed_data.artist, parsed_data.album, parsed_data.name,null);
-//     } else if (parse.type == "setPasscode"){
-//         // Sample data for setting passcode:
-//         // {"type":"setPasscode",
-//         //  "devicekey": "192.168.3.4:7000",
-//         //  "passcode": "1234"}
-//         airtunes.setPasscode(parsed_data.devicekey, parsed_data.passcode);
-//     } else if (parse.type == "stop"){
-//         // Sample data for stopping:
-//         // {"type":"stop",
-//         //  "devicekey": "192.168.3.4:7000"}
-//         airtunes.stop(parsed_data.devicekey);
-//     } else if (parse.type == "stopAll"){
-//         // Sample data for stopping all:
-//         // {"type":"stopAll"}
-//         airtunes.stopAll();
-//     }
-//   }
-  
-// }).listen(8980, (listenSocket) => {
- 
-//   if (listenSocket) {
-//     console.log('Listening to port 8980');
-//   }
-  
-// });
 
 var func = `
      const {Worker, isMainThread, parentPort, workerData} = require('node:worker_threads');
      var { WebSocketServer } = require('ws');
      const wss = new WebSocketServer({ port: 8980 });
       wss.on('connection', function connection(ws) {
-        wsConnection = ws;
         ws.on('message', function message(data) {
           parentPort.postMessage({message: data});
         });
+        parentPort.on("message", data => {
+          ws.send(data);
+        });  
       });`;
 var worker = new Worker(func, {eval: true});    
 worker.on("message", (result) => {
@@ -309,21 +226,21 @@ worker.on("message", (result) => {
         //  "devicekey": "192.168.3.4:7000",
         //  "volume":30}
         airtunes.setVolume(parsed_data.devicekey, parsed_data.volume,null);
-    } else if (parse.type == "setProgress"){
+    } else if (parsed_data.type == "setProgress"){
         // Sample data for setting progress:
         // {"type":"setProgress",
         //  "devicekey": "192.168.3.4:7000",
         //  "progress": 0,
         //  "duration": 0}
         airtunes.setProgress(parsed_data.devicekey, parsed_data.progress, parsed_data.duration,null);
-    } else if (parse.type == "setArtwork"){
+    } else if (parsed_data.type == "setArtwork"){
         // Sample data for setting artwork:
         // {"type":"setArtwork",
         //  "devicekey": "192.168.3.4:7000",
         //  "contentType" : "image/png";
         //  "artwork": "hex data"}
         airtunes.setArtwork(parsed_data.devicekey, Buffer.from(parsed_data.artwork,"hex"),null);
-    } else if (parse.type == "setTrackInfo"){
+    } else if (parsed_data.type == "setTrackInfo"){
         // Sample data for setting track info:
         // {"type":"setTrackInfo",
         //  "devicekey": "192.168.3.4:7000",
@@ -331,18 +248,18 @@ worker.on("message", (result) => {
         //  "album": "John Doe Album",
         //  "name": "John Doe Song"}
         airtunes.setTrackInfo(parsed_data.devicekey, parsed_data.name, parsed_data.artist, parsed_data.album, parsed_data.name,null);
-    } else if (parse.type == "setPasscode"){
+    } else if (parsed_data.type == "setPasscode"){
         // Sample data for setting passcode:
         // {"type":"setPasscode",
         //  "devicekey": "192.168.3.4:7000",
         //  "passcode": "1234"}
         airtunes.setPasscode(parsed_data.devicekey, parsed_data.passcode);
-    } else if (parse.type == "stop"){
+    } else if (parsed_data.type == "stop"){
         // Sample data for stopping:
         // {"type":"stop",
         //  "devicekey": "192.168.3.4:7000"}
         airtunes.stop(parsed_data.devicekey);
-    } else if (parse.type == "stopAll"){
+    } else if (parsed_data.type == "stopAll"){
         // Sample data for stopping all:
         // {"type":"stopAll"}
         airtunes.stopAll();
