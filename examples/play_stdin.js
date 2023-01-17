@@ -183,9 +183,9 @@ airtunes.on('buffer', function(status) {
 airtunes.on('device', function(key, status, desc) {
   let status_json =  {
     type : "deviceStatus",
-    key : key,
-    status: status,
-    desc: desc
+    key : key ?? "",
+    status: status ?? "",
+    desc: desc ?? ""
   }
   if(worker != null){
     worker.postMessage(JSON.stringify(status_json));
@@ -202,6 +202,7 @@ var func = `
           parentPort.postMessage({message: data});
         });
         parentPort.on("message", data => {
+          console.log("ass");
           ws.send(data);
         });  
       });`;
