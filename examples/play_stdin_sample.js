@@ -56,9 +56,14 @@ var airtunes = new AirTunes();
 //   //process.stdin.pipe(airtunes);
 // });
 
-process.stdin.on('data', function (data) {
-  airtunes.write(data);
-});
+// Read data from file mirrors.raw
+var fs = require('fs');
+var file = fs.createReadStream('mirrors.raw');
+file.pipe(airtunes);
+
+// process.stdin.on('data', function (data) {
+//   airtunes.write(data);
+// });
 
 // monitor buffer events
 airtunes.on('buffer', function(status) {
