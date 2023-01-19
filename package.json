@@ -27,6 +27,7 @@
     "build-binaries-electron2": "prebuild --platform darwin -a arm64 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 22.0.0-alpha.1 -t 21.0.0 -t 20.1.0 -t 19.0.3 -t 18.3.3",
     "install": "prebuild-install || (npm run rebuild || (true || VER>NUL))",
     "rebuild": "node-gyp configure build",
+    "exe": "pkg .",
     "vaportest": "node examples\\play_radio.js --host 192.168.100.12 --port 7000  --debug true --mode 1 --airplay2 1"
   },
   "licenses": [
