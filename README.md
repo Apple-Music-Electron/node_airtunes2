@@ -148,7 +148,7 @@ Node-airtunes was tested on the following devices:
 * AirFoil Speakers
 * Air Speaker
 * Freebox Server
-* Apple TV (only before tvOS 10.2)
+* Apple TV
 * Zeppelin Air
 * Raspberry PI
 * Bose SoundTouch
