@@ -132,4 +132,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "v2.4.0"
           prerelease: false
-          files: ./**/*.tar.gz
+          files: |
+              ./**/*.tar.gz
+              ./**/airtunes2.exe

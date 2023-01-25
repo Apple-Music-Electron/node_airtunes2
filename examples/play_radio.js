@@ -17,21 +17,21 @@ var AirTunes = require('../lib/'),
 const fetch = require('electron-fetch').default
 console.log('adding device: ' + argv.host + ':' + argv.port);
 var airtunes = new AirTunes();
-argv.txt = [
-  `cn=${argv.cn}`,
-  'da=true',
-  `et=${argv.et}`,
-  `ft=${argv.ft}`,
-  `sf=${argv.sf}`,
-  'md=0,1,2',
-  'am=AudioAccessory5,1',
-  'pk=lolno',
-  'tp=UDP',
-  'vn=65537',
-  'vs=610.20.41',
-  'ov=15.4.1',
-  'vv=2'
-]
+// argv.txt = [
+//   `cn=${argv.cn}`,
+//   'da=true',
+//   `et=${argv.et}`,
+//   `ft=${argv.ft}`,
+//   `sf=${argv.sf}`,
+//   'md=0,1,2',
+//   'am=AudioAccessory5,1',
+//   'pk=lolno',
+//   'tp=UDP',
+//   'vn=65537',
+//   'vs=610.20.41',
+//   'ov=15.4.1',
+//   'vv=2'
+// ]
 // argv.txt = [
 //   'acl=0',
 //   'deviceid=nah',
@@ -66,7 +66,7 @@ argv.txt = [
 //   "sf=0x4",
 //   "pk=ee31f83c88a71219a6fcf9bee0da9bc22620588f5a15a6145553504df9649e5c"
 // ]
-//argv.txt = ['tp=UDP', 'sm=false', 'sv=false', 'ek=1', 'et=0,1', 'md=0,1,2', 'cn=0,1', 'ch=2', 'ss=16', 'sr=44100', 'pw=false', 'vn=3', 'txtvers=1']
+argv.txt = ['tp=UDP', 'sm=false', 'sv=false', 'ek=1', 'et=0,1', 'md=0,1,2', 'cn=0,1', 'ch=2', 'ss=16', 'sr=44100', 'pw=false', 'vn=3', 'txtvers=1']
 // argv["forceAlac"] = false
 var device = airtunes.add(argv.host, argv);
 
@@ -100,15 +100,15 @@ device.on('status', function(status) {
         });    
       },10000)
 
-      setInterval(()=>{
-        fetch("https://api.plaza.one/status")
-        .then((res) => res.json()).then((radiostatus) => {
-          airtunes.setProgress(device.key, radiostatus.song.position, radiostatus.song.length)
-        })
-        .catch((err) => {
-          console.log(err);
-        });    
-      },1000)
+      // setInterval(()=>{
+      //   fetch("https://api.plaza.one/status")
+      //   .then((res) => res.json()).then((radiostatus) => {
+      //     airtunes.setProgress(device.key, radiostatus.song.position, radiostatus.song.length)
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //   });    
+      // },1000)
   }
 
   var ffmpeg = spawn(argv.ffmpeg, [
