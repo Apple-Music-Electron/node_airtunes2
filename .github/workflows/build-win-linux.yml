@@ -133,5 +133,6 @@ jobs:
           automatic_release_tag: "v2.4.0"
           prerelease: false
           files: |
+              ./windows/airtunes2.exe
               ./**/*.tar.gz
-              ./**/airtunes2.exe
+
