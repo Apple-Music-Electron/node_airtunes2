@@ -41,12 +41,7 @@
       "lib/*.js"
     ],
     "assets": [
-      "build/Release/obj/airtunes/*",
-      "node_modules/curve25519-n2/build/Release/*",
-      "node_modules/sodium/build/Release/*",
-      "node_modules/ed25519/build/Release/*",
-      "node_modules/uWebSockets.js/uws_win32_x64_83.node",
-      "node_modules/uWebSockets.js/uws.js"
+      "build/Release/obj/airtunes/*"
     ],
     "targets": [
       "node18-win"
@@ -67,6 +62,7 @@
     "js-crypto-aes": "^1.0.4",
     "js-sha1": "^0.4.1",
     "lodash": "^4.17.4",
+    "mdns-js": "github:ciderapp/node-mdns-js",
     "parse-raw-http": "0.0.1",
     "pkg": "^5.8.0",
     "prebuild-install": "git+https://github.com/ciderapp/prebuild-install.git",

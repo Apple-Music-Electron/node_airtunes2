@@ -1,5 +1,6 @@
 var spawn = require('child_process').spawn
 var airtunes = spawn("airtunes2.exe");
+const fetch = require('electron-fetch').default
 var { WebSocket } = require('ws');
 var ffmpeg = spawn('C:\\ffmpeg\\bin\\ffmpeg.exe', [
     '-i', 'http://radio.plaza.one/mp3_low',
@@ -23,21 +24,52 @@ ffmpeg.stderr.on('data', function(data) {
 });
 setTimeout(()=>{
 const ws = new WebSocket('ws://localhost:8980');
-
+airtunes.stdout.pipe(process.stdout);
 ws.on('error', console.error);
 
 ws.on('open', function open() {
   ws.send(JSON.stringify({"type":"addDevices",
        "host":"192.168.100.12",
        "args":{"port":7000,
-       "volume":20,airplay2: true,
-       "txt":["tp=UDP","sm=false","sv=false","ek=1","et=0,1","md=0,1,2","cn=0,1","ch=2","ss=16","sr=44100","pw=false","vn=3","txtvers=1"],
+       "volume":20, "airplay2": false,
+       "txt":["cn=0,1,2,3","da=true","et=0,3,5","ft=0x4A7FCA00,0xBC354BD0","sf=0xa0404","md=0,1,2","am=AudioAccessory5,1","pk=lolno","tp=UDP","vn=65537","vs=670.6.2","ov=16.2","vv=2"],
        "debug":true,
-      "forceAlac":false}}))
+       "forceAlac":false}}))
 });
 
 
 ws.on('message', function message(data) {
   console.log('received: %s', data);
+  data = JSON.parse(data)
+  if (data.status == "ready"){
+    setInterval(()=>{
+      fetch("https://api.plaza.one/status")
+      .then((res) => res.json()).then((radiostatus) => {
+        ws.send(JSON.stringify(      
+            {"type":"setTrackInfo",
+            "devicekey": data.key,
+            "artist": radiostatus.song.artist,
+            "album": radiostatus.song.album,
+            "name": radiostatus.song.title}
+        ))
+        fetch(radiostatus.song.artwork_src)
+        .then((res) => res.buffer())
+        .then((buffer) => {
+          ws.send(JSON.stringify(      
+            {"type":"setArtwork",
+            "devicekey": data.key,
+            "contentType" : "image/jpeg",
+            "artwork": buffer.toString('hex')}
+          ))
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+      })
+      .catch((err) => {
+        console.log(err);
+      });    
+    },10000)
+  }
 });
 }, 1000);
