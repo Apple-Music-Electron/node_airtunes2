@@ -49,7 +49,7 @@
       "node_modules/uWebSockets.js/uws.js"
     ],
     "targets": [
-      "node14-win"
+      "node18-win"
     ]
   },
   "dependencies": {
