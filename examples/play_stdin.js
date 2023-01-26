@@ -76,7 +76,8 @@ worker.on("message", (result) => {
         // "timeout": 3000}
         castDevices = [];
         getAvailableDevices();
-        setTimeout(() => { worker.postMessage(JSON.stringify(castDevices));}, parsed_data.timeout ?? 1000);
+        setTimeout(() => { worker.postMessage(JSON.stringify({
+          type : "airplayDevices", devices: castDevices}));}, parsed_data.timeout ?? 1000);
       } else if (parsed_data.type == "addDevices") {
         // Sample data for adding devices:
         //'{"type":"addDevices",
