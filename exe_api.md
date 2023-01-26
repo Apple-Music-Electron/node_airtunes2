@@ -4,7 +4,7 @@
 
 ## **WS API: Connect to ```"ws://localhost:8980"```**
 
-### **Available commands: send JSON string to airtunes2.exe**
+### **Available commands: send JSON string to WS server**
 
 1. Scanning available AirPlay devices:
 
