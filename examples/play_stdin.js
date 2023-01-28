@@ -196,6 +196,24 @@ function ondeviceup(name, host, port, addresses, text, airplay2 = null) {
     } catch (e) {}
     let host_name = addresses != null && typeof addresses == "object" && addresses.length > 0 ? addresses[0] : typeof addresses == "string" ? addresses : "";
 
+    let needPassword = false;
+    let needPin = false;
+    let transient = false;
+    let c = text.filter((u) => String(u).startsWith('sf='))
+    let statusflags = c[0] ? parseInt(c[0].substring(3)).toString(2).split('') : []
+    if (c.length == 0) {
+        c = text.filter((u) => String(u).startsWith('flags='))
+        statusflags = c[0] ? parseInt(c[0].substring(6)).toString(2).split('') : []
+    }
+    if (statusflags != []){
+      let PasswordRequired = (statusflags[statusflags.length - 1 - 7] == '1')
+      let PinRequired = (statusflags[statusflags.length - 1 - 3] == '1')
+      let OneTimePairingRequired = (statusflags[statusflags.length - 1 - 9] == '1')
+      needPassword = PasswordRequired;
+      needPin = (PinRequired || OneTimePairingRequired)
+      transient = (!(PasswordRequired || PinRequired || OneTimePairingRequired)) ?? true
+    }
+
     if (
       castDevices.findIndex((item) => {
         return item != null && item.name == shown_name && item.host == host_name && item.host != "Unknown";
@@ -208,6 +226,7 @@ function ondeviceup(name, host, port, addresses, text, airplay2 = null) {
         addresses: addresses,
         txt: text,
         airplay2: airplay2,
+        needPassword: needPassword,
       });
       // if (this.devices.indexOf(host_name) === -1) {
       //   this.devices.push(host_name);

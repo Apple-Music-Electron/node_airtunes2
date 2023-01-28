@@ -25,14 +25,16 @@ ffmpeg.stderr.on('data', function(data) {
 setTimeout(()=>{
 const ws = new WebSocket('ws://localhost:8980');
 airtunes.stdout.pipe(process.stdout);
+airtunes.stderr.pipe(process.stdout);
 ws.on('error', console.error);
 
 ws.on('open', function open() {
   ws.send(JSON.stringify({"type":"addDevices",
        "host":"192.168.100.12",
        "args":{"port":7000,
-       "volume":20, "airplay2": false,
-       "txt":["cn=0,1,2,3","da=true","et=0,3,5","ft=0x4A7FCA00,0xBC354BD0","sf=0xa0404","md=0,1,2","am=AudioAccessory5,1","pk=lolno","tp=UDP","vn=65537","vs=670.6.2","ov=16.2","vv=2"],
+       "volume":20, "airplay2": true ,
+       //"txt":["cn=0,1,2,3","da=true","et=0,3,5","ft=0x4A7FCA00,0xBC354BD0","sf=0xa0404","md=0,1,2","am=AudioAccessory5,1","pk=lolno","tp=UDP","vn=65537","vs=670.6.2","ov=16.2","vv=2"],
+       "txt":["cn=0,1,2,3","da=true","et=0,3,5","ft=0x4A7FCA00,0xBC354BD0","sf=0x80484","md=0,1,2","am=AudioAccessory5,1","pk=lol","tp=UDP","vn=65537","vs=670.6.2","ov=16.2","vv=2"],
        "debug":true,
        "forceAlac":false}}))
 });
