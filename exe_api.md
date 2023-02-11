@@ -1,6 +1,6 @@
 # How airtunes2.exe works
 
-## **Audio : Pipe PCM 16bit 44100Hz 2ch to airtunes2.exe stdin's**
+## **Audio : Pipe PCM 16bit 44100Hz 2ch to airtunes2.exe stdin's or via the WS API**
 
 ## **WS API: Connect to ```"ws://localhost:8980"```**
 
@@ -66,6 +66,11 @@
 9. Stopping all devices:
 
          {"type":"stopAll"}
+
+9. Send raw audio:
+
+         {"type":"sendAudio",
+          "data": "binary string data"} // 16bit 44100Hz 2ch (s16le), data.toString('binary')
 
 ### **Available response: JSON string**
 

@@ -133,7 +133,12 @@ worker.on("message", (result) => {
         // Sample data for stopping all:
         // {"type":"stopAll"}
         airtunes.stopAll();
-    }
+    } else if (parsed_data.type == "sendAudio"){
+        // Sample data for playing:
+        // {"type":"sendAudio",
+        //  "data": "hex data"}
+        airtunes.write(Buffer.from(parsed_data.data,"binary"));
+      }
 });
 
 function getAvailableDevices() {

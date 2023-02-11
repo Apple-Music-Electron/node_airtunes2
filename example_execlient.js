@@ -12,7 +12,9 @@ var ffmpeg = spawn('C:\\ffmpeg\\bin\\ffmpeg.exe', [
 ]);
 
   // pipe data to AirTunes
-ffmpeg.stdout.pipe(airtunes.stdin);
+// ffmpeg.stdout.pipe(airtunes.stdin);
+
+
 
   // detect if ffmpeg was not spawned correctly
 ffmpeg.stderr.setEncoding('utf8');
@@ -36,8 +38,15 @@ ws.on('open', function open() {
        "txt":["cn=0,1,2,3","da=true","et=0,3,5","ft=0x4A7FCA00,0xBC354BD0","sf=0xa0404","md=0,1,2","am=AudioAccessory5,1","pk=lolno","tp=UDP","vn=65537","vs=670.6.2","ov=16.2","vv=2"],
        //"txt":["cn=0,1,2,3","da=true","et=0,3,5","ft=0x4A7FCA00,0xBC354BD0","sf=0x80484","md=0,1,2","am=AudioAccessory5,1","pk=lol","tp=UDP","vn=65537","vs=670.6.2","ov=16.2","vv=2"],
        "debug":true,
-       "forceAlac":false}}))
+       "forceAlac":false}}))     
 });
+
+ffmpeg.stdout.on('data', function(data) {
+  try{
+  ws.send(JSON.stringify({"type":"sendAudio",
+  "data": data.toString('binary')}))
+  }catch(err){}
+})
 
 
 ws.on('message', function message(data) {
