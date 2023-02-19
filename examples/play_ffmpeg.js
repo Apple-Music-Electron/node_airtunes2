@@ -1,26 +1,28 @@
-var airtunes = require('../lib/'),
+var AirTunes = require('../lib/'),
     spawn = require('child_process').spawn,
     argv = require('optimist')
       .usage('Usage: $0 --host [host] --port [num] --ffmpeg [path] --file [path] --volume [num] --password [string]')
-      .default('port', 5000)
+      .default('port', 5002)
       .default('volume', 50)
-      .default('ffmpeg', '/usr/local/bin/ffmpeg')
-      .default('file', './sample.mp3')
+      .default('ffmpeg', 'C:\\ffmpeg\\bin\\ffmpeg.exe')
+      .default('file', './wakeup.mp3')
       .demand(['host'])
       .argv;
 
 console.log('adding device: ' + argv.host + ':' + argv.port);
-airtunes.add(argv);
+var airtunes = new AirTunes();
+var device = airtunes.add(argv.host, argv);
 
 // when the device is online, spawn ffmpeg to transcode the file
-airtunes.on('device', function(key, status, desc) {
-  console.log('device ' + key + ' status: ' + status + ' ' + desc);
+device.on('status', function(status) {
+  console.log('status: ' + status);
 
-  if(status !== 'playing')
-    process.exit(1);
+  if(status !== 'ready')
+    return;
 
   var ffmpeg = spawn(argv.ffmpeg, [
     '-i', argv.file,
+    '-acodec', 'pcm_s16le',
     '-f', 's16le',        // PCM 16bits, little-endian
     '-ar', '44100',       // Sampling rate
     '-ac', 2,             // Stereo
