@@ -3,6 +3,7 @@ var ab2str = require('arraybuffer-to-string')
 const mdns = require("mdns-js");
 var AirTunes = require('../lib/');
 var castDevices = [];
+const { join } = require('path');
 
 process.env.UV_THREADPOOL_SIZE = 6;
 
@@ -55,19 +56,7 @@ airtunes.on('device', function(key, status, desc) {
   console.log("deviceStatus", key, status, desc);
 })
 
-var func = `
-     const {Worker, isMainThread, parentPort, workerData} = require('node:worker_threads');
-     var { WebSocketServer } = require('ws');
-     const wss = new WebSocketServer({ port: 8980 });
-      wss.on('connection', function connection(ws) {
-        ws.on('message', function message(data) {
-          parentPort.postMessage({message: data});
-        });
-        parentPort.on("message", data => {
-          ws.send(data);
-        });  
-      });`;
-var worker = new Worker(func, {eval: true});    
+const worker = new Worker(join(__dirname, "play_stdin_worker.js"));  
 worker.on("message", (result) => {
   parsed_data = JSON.parse(ab2str(result.message));
       if (parsed_data.type == "scanDevices") {

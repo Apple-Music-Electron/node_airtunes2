@@ -1425,6 +1425,11 @@ js-sha1@^0.4.1:
   resolved "https://registry.yarnpkg.com/js-sha1/-/js-sha1-0.4.1.tgz#d118479722a766822e951513c897a31c9654a5b8"
   integrity sha1-0RhHlyKnZoIulRUTyJejHJZUpbg=
 
+js-sha512@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/js-sha512/-/js-sha512-0.8.0.tgz#dd22db8d02756faccf19f218e3ed61ec8249f7d4"
+  integrity sha512-PWsmefG6Jkodqt+ePTvBZCSMFgN7Clckjd0O7su3I0+BW2QWUTJNzjktHsztGLhncP2h8mcF9V9Y2Ha59pAViQ==
+
 jsbn@~0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-0.1.1.tgz#a5e654c2e5a2deb5f201d96cefbca80c0ef2f513"
