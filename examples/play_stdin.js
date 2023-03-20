@@ -121,7 +121,7 @@ worker.on("message", (result) => {
     } else if (parsed_data.type == "stopAll"){
         // Sample data for stopping all:
         // {"type":"stopAll"}
-        airtunes.stopAll();
+        airtunes.stopAll(null);
     } else if (parsed_data.type == "sendAudio"){
         // Sample data for playing:
         // {"type":"sendAudio",
