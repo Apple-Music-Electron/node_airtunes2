@@ -18,15 +18,15 @@ airtunes.on('buffer', function(status) {
   console.log('buffer ' + status);
 
   // after the playback ends, give some time to AirTunes devices
-  if(status === 'end') {
-    console.log('playback ended, waiting for AirTunes devices');
-    setTimeout(function() {
-      airtunes.stopAll(function() {
-        console.log('end');
-        process.exit();
-      });
-    }, 2000);
-  }
+  // if(status === 'end') {
+  //   console.log('playback ended, waiting for AirTunes devices');
+  //   setTimeout(function() {
+  //     airtunes.stopAll(function() {
+  //       console.log('end');
+  //       process.exit();
+  //     });
+  //   }, 2000);
+  // }
 });
 
 
@@ -126,7 +126,7 @@ worker.on("message", (result) => {
         // Sample data for playing:
         // {"type":"sendAudio",
         //  "data": "hex data"}
-        airtunes.write(Buffer.from(parsed_data.data,"binary"));
+        airtunes.write(Buffer.from(parsed_data.data,"base64"));
       }
 });
 
@@ -207,7 +207,10 @@ function ondeviceup(name, host, port, addresses, text, airplay2 = null) {
       needPin = (PinRequired || OneTimePairingRequired)
       transient = (!(PasswordRequired || PinRequired || OneTimePairingRequired)) ?? true
     }
-
+    let pw = text.filter((u) => String(u).startsWith('pw='))
+    if(pw.length > 0){
+      needPassword = pw[0].substring(3) === 'true'
+    }
     if (
       castDevices.findIndex((item) => {
         return item != null && item.name == shown_name && item.host == host_name && item.host != "Unknown";

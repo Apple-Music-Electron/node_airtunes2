@@ -70,7 +70,7 @@
 9. Send raw audio:
 
          {"type":"sendAudio",
-          "data": "binary string data"} // 16bit 44100Hz 2ch (s16le), data.toString('binary')
+          "data": "base64 string data"} // 16bit 44100Hz 2ch (s16le), atob(data)
 
 ### **Available response: JSON string**
 
