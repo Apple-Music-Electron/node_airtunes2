@@ -11,3 +11,4 @@ prebuilds/airtunes2-v2.3.0-electron-v99-win32-x64.tar.gz
 prebuilds/airtunes2-v2.3.0-electron-v103-win32-x64.tar.gz
 prebuilds/airtunes2-v2.3.0-electron-v106-win32-x64.tar.gz
 mirrors.raw
+.yarn/

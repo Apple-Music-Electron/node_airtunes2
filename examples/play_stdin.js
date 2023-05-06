@@ -1,5 +1,6 @@
 const {Worker} = require("worker_threads");
 var ab2str = require('arraybuffer-to-string')
+const fetch2 = require('electron-fetch').default
 const mdns = require("mdns-js");
 var AirTunes = require('../lib/');
 var castDevices = [];
@@ -99,6 +100,13 @@ worker.on("message", (result) => {
         //  "contentType" : "image/png",
         //  "artwork": "hex data"}
         airtunes.setArtwork(parsed_data.devicekey, Buffer.from(parsed_data.artwork,"hex"),parsed_data.contentType);
+    } else if (parsed_data.type == "setArtworkB64"){
+        // Sample data for setting artwork:
+        // {"type":"setArtworkURL",
+        //  "devicekey": "192.168.3.4:7000",
+        //  "contentType" : "image/png",
+        //  "artwork": "url"}
+        airtunes.setArtwork(parsed_data.devicekey,Buffer.from(parsed_data.artwork,'base64'),parsed_data.contentType);
     } else if (parsed_data.type == "setTrackInfo"){
         // Sample data for setting track info:
         // {"type":"setTrackInfo",
