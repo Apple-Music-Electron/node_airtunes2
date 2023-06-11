@@ -5,7 +5,7 @@ var AirTunes = require('../lib/'),
       .usage('Usage: $0 --host [host] --port [num] --ffmpeg [path] --file [path] --volume [num] --password [string] --mode [mode] --airplay2 [1/0] --debug [mode] --ft [featuresHexes] --sf [statusFlags] --et [encryptionTypes] --cn [audioCodecs]')
       .default('port', 5002)
       .default('volume', 10)
-      .default('ffmpeg', 'C:\\ffmpeg\\bin\\ffmpeg.exe')
+      .default('ffmpeg', 'ffmpeg')
       .default('file', 'http://radio.plaza.one/mp3_low')
       .default('ft',"0x7F8AD0,0x38BCF46")
       .default('sf',"0x98404")
