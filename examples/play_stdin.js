@@ -5,13 +5,17 @@ const mdns = require("mdns-js");
 var AirTunes = require('../lib/');
 var castDevices = [];
 const { join } = require('path');
+const { Stream } = require('stream');
+var NicerCast = require('nicercast');
+var audioStream = new Stream.PassThrough();
 
 process.env.UV_THREADPOOL_SIZE = 6;
 
 var airtunes = new AirTunes();
 
-process.stdin.on('data', function (data) {
+process.stdin.on('data',  (data) => {
   airtunes.write(data);
+  audioStream.write(data);
 });
 
 // monitor buffer events
@@ -30,6 +34,8 @@ airtunes.on('buffer', function(status) {
   // }
 });
 
+var server = new NicerCast(audioStream, {});
+server.start(8001);
 
 // monitor buffer events
 airtunes.on('buffer', function(status) {
@@ -135,6 +141,7 @@ worker.on("message", (result) => {
         // {"type":"sendAudio",
         //  "data": "hex data"}
         airtunes.write(Buffer.from(parsed_data.data,"base64"));
+        audioStream.write(Buffer.from(parsed_data.data,"base64"));
       }
 });
 

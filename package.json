@@ -10,7 +10,7 @@
     "audio",
     "cider"
   ],
-  "version": "2.4.2",
+  "version": "2.4.3",
   "author": "vapormusic <vapormusic.service@gmail.com>",
   "main": "./lib/index.js",
   "bin": "./examples/play_stdin.js",
@@ -42,7 +42,8 @@
       "examples/play_stdin_worker.js"
     ],
     "assets": [
-      "build/Release/obj/airtunes/*"
+      "build/Release/obj/airtunes/*",
+      "node_modules/lame/build/Release/obj/bindings/*"
     ],
     "targets": [
       "node18-win"
@@ -64,6 +65,7 @@
     "js-sha1": "^0.4.1",
     "lodash": "^4.17.4",
     "mdns-js": "github:ciderapp/node-mdns-js",
+    "nicercast": "github:vapormusic/nicercast",
     "parse-raw-http": "0.0.1",
     "pkg": "^5.8.0",
     "prebuild-install": "git+https://github.com/ciderapp/prebuild-install.git",
