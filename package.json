@@ -43,7 +43,7 @@
     ],
     "assets": [
       "build/Release/obj/airtunes/*",
-      "node_modules/lame/build/Release/obj/bindings/*"
+      "node_modules/lame/build/Release/*"
     ],
     "targets": [
       "node18-win"
