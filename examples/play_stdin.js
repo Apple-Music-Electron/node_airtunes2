@@ -2,13 +2,16 @@ const {Worker} = require("worker_threads");
 var ab2str = require('arraybuffer-to-string')
 const fetch2 = require('electron-fetch').default
 const mdns = require("mdns-js");
+const os = require("os");
 var AirTunes = require('../lib/');
 var castDevices = [];
 const { join } = require('path');
 const { Stream } = require('stream');
 var NicerCast = require('nicercast');
 var audioStream = new Stream.PassThrough();
+const getPortSync = require('get-port-sync');
 
+// console.log(await getPort());
 process.env.UV_THREADPOOL_SIZE = 6;
 
 var airtunes = new AirTunes();
@@ -33,9 +36,10 @@ airtunes.on('buffer', function(status) {
   //   }, 2000);
   // }
 });
-
+var HttpAudioPort = getPortSync();
+console.log("HttpAudioPort", HttpAudioPort);
 var server = new NicerCast(audioStream, {});
-server.start(8001);
+server.start(HttpAudioPort);
 
 // monitor buffer events
 airtunes.on('buffer', function(status) {
@@ -142,7 +146,15 @@ worker.on("message", (result) => {
         //  "data": "hex data"}
         airtunes.write(Buffer.from(parsed_data.data,"base64"));
         audioStream.write(Buffer.from(parsed_data.data,"base64"));
-      }
+    } else if (parsed_data.type == "httpAudioIP") {
+        let status_json =  {
+          type : "httpAudioIP",
+          desc: getIp() + ":" + HttpAudioPort
+        }
+        if(worker != null){
+          worker.postMessage(JSON.stringify(status_json));
+        }
+    }
 });
 
 function getAvailableDevices() {
@@ -174,58 +186,70 @@ function getAvailableDevices() {
     }
   });
 
+  let browser3 = mdns.createBrowser(mdns.tcp("googlecast"));
+  browser3.on("ready", browser.discover);
+
+  browser3.on("update", (service) => {
+    if (service.addresses && service.fullname && service.fullname.includes("_googlecast._tcp")) {
+      let a = service.txt.filter((u) => String(u).startsWith("fn="));
+      let name = (a[0] ?? "").substring(3) != "" ? (a[0] ?? "").substring(3) : service.fullname.substring(0, service.fullname.indexOf("._googlecast"));
+      ondeviceup(name + " (" + (service.type[0]?.description ?? "") + ")", service.addresses[0], 9999, service.addresses, null, null , "googlecast");
+    }
+  });
+
 }
 
-function ondeviceup(name, host, port, addresses, text, airplay2 = null) {
-  // console.log(this.castDevices.findIndex((item) => {return (item.name == host.replace(".local","") && item.port == port )}))
-
-  let d = "";
-  let audiook = true;
-  try {
-    d = text.filter((u) => String(u).startsWith("features="));
-    if (d.length == 0) d = text.filter((u) => String(u).startsWith("ft="));
-    let features_set = d.length > 0 ? d[0].substring(d[0].indexOf("=") + 1).split(",") : [];
-    let features = [...(features_set.length > 0 ? parseInt(features_set[0]).toString(2).split("") : []), ...(features_set.length > 1 ? parseInt(features_set[1]).toString(2).split("") : [])];
-    if (features.length > 0) {
-      audiook = features[features.length - 1 - 9] == "1";
-    }
-  } catch (_) {}
-  if (audiook) {
-    let shown_name = name;
+function ondeviceup(name, host, port, addresses, text, airplay2 = null, devicetype = "airplay") {
+  // console.log(castDevices.findIndex((item) => {return (item.name == host.replace(".local","") && item.port == port )}))
+  if (devicetype == "airplay") {
+    let d = "";
+    let audiook = true;
     try {
-      let model = text.filter((u) => String(u).startsWith("model="));
-      let manufacturer = text.filter((u) => String(u).startsWith("manufacturer="));
-      let name1 = text.filter((u) => String(u).startsWith("name="));
-      if (name1.length > 0) {
-        shown_name = name1[0].split("=")[1];
-      } else if (manufacturer.length > 0) {
-        shown_name = (manufacturer.length > 0 ? manufacturer[0].substring(13) : "") + " " + (model.length > 0 ? model[0].substring(6) : "");
-        shown_name = shown_name.trim().length > 1 ? shown_name : (host ?? "Unknown").replace(".local", "");
+      d = text.filter((u) => String(u).startsWith("features="));
+      if (d.length == 0) d = text.filter((u) => String(u).startsWith("ft="));
+      let features_set = d.length > 0 ? d[0].substring(d[0].indexOf("=") + 1).split(",") : [];
+      let features = [...(features_set.length > 0 ? parseInt(features_set[0]).toString(2).split("") : []), ...(features_set.length > 1 ? parseInt(features_set[1]).toString(2).split("") : [])];
+      if (features.length > 0) {
+        audiook = features[features.length - 1 - 9] == "1";
       }
-    } catch (e) {}
-    let host_name = addresses != null && typeof addresses == "object" && addresses.length > 0 ? addresses[0] : typeof addresses == "string" ? addresses : "";
+    } catch (_) {}
+    if (audiook) {
+      let shown_name = name;
+      try {
+        let model = text.filter((u) => String(u).startsWith("model="));
+        let manufacturer = text.filter((u) => String(u).startsWith("manufacturer="));
+        let name1 = text.filter((u) => String(u).startsWith("name="));
+        if (name1.length > 0) {
+          shown_name = name1[0].split("=")[1];
+        } else if (manufacturer.length > 0) {
+          shown_name = (manufacturer.length > 0 ? manufacturer[0].substring(13) : "") + " " + (model.length > 0 ? model[0].substring(6) : "");
+          shown_name = shown_name.trim().length > 1 ? shown_name : (host ?? "Unknown").replace(".local", "");
+        }
+      } catch (e) {}
+      let host_name = addresses != null && typeof addresses == "object" && addresses.length > 0 ? addresses[0] : typeof addresses == "string" ? addresses : "";
 
-    let needPassword = false;
-    let needPin = false;
-    let transient = false;
-    let c = text.filter((u) => String(u).startsWith('sf='))
-    let statusflags = c[0] ? parseInt(c[0].substring(3)).toString(2).split('') : []
-    if (c.length == 0) {
-        c = text.filter((u) => String(u).startsWith('flags='))
-        statusflags = c[0] ? parseInt(c[0].substring(6)).toString(2).split('') : []
-    }
-    if (statusflags != []){
-      let PasswordRequired = (statusflags[statusflags.length - 1 - 7] == '1')
-      let PinRequired = (statusflags[statusflags.length - 1 - 3] == '1')
-      let OneTimePairingRequired = (statusflags[statusflags.length - 1 - 9] == '1')
-      needPassword = PasswordRequired;
-      needPin = (PinRequired || OneTimePairingRequired)
-      transient = (!(PasswordRequired || PinRequired || OneTimePairingRequired)) ?? true
-    }
-    let pw = text.filter((u) => String(u).startsWith('pw='))
-    if(pw.length > 0){
-      needPassword = pw[0].substring(3) === 'true'
-    }
+      let needPassword = false;
+      let needPin = false;
+      let transient = false;
+      let c = text.filter((u) => String(u).startsWith('sf='))
+      let statusflags = c[0] ? parseInt(c[0].substring(3)).toString(2).split('') : []
+      if (c.length == 0) {
+          c = text.filter((u) => String(u).startsWith('flags='))
+          statusflags = c[0] ? parseInt(c[0].substring(6)).toString(2).split('') : []
+      }
+      if (statusflags != []){
+        let PasswordRequired = (statusflags[statusflags.length - 1 - 7] == '1')
+        let PinRequired = (statusflags[statusflags.length - 1 - 3] == '1')
+        let OneTimePairingRequired = (statusflags[statusflags.length - 1 - 9] == '1')
+        needPassword = PasswordRequired;
+        needPin = (PinRequired || OneTimePairingRequired)
+        transient = (!(PasswordRequired || PinRequired || OneTimePairingRequired)) ?? true
+      }
+      let pw = text.filter((u) => String(u).startsWith('pw='))
+      if(pw.length > 0){
+        needPassword = pw[0].substring(3) === 'true'
+      }
+
     if (
       castDevices.findIndex((item) => {
         return item != null && item.name == shown_name && item.host == host_name && item.host != "Unknown";
@@ -239,9 +263,10 @@ function ondeviceup(name, host, port, addresses, text, airplay2 = null) {
         txt: text,
         airplay2: airplay2,
         needPassword: needPassword,
+        devicetype: devicetype,
       });
-      // if (this.devices.indexOf(host_name) === -1) {
-      //   this.devices.push(host_name);
+      // if (devices.indexOf(host_name) === -1) {
+      //   devices.push(host_name);
       // }
       if (shown_name) {
         console.log("deviceFound", host_name, shown_name);
@@ -249,6 +274,53 @@ function ondeviceup(name, host, port, addresses, text, airplay2 = null) {
     } else {
       console.log("deviceFound (added)", host_name, shown_name);
     }
+  }} else if (devicetype == "googlecast") {
+    if (
+      castDevices.findIndex((item) => {
+        return item != null && item.name == name && item.host == host && item.host != "Unknown";
+      }) == -1
+    ) {
+      castDevices.push({
+        name: name,
+        host: host,
+        port: port,
+        addresses: addresses,
+        txt: text,
+        airplay2: airplay2,
+        needPassword: null,
+        devicetype: devicetype
+      });
+      // if (devices.indexOf(host_name) === -1) {
+      //   devices.push(host_name);
+      // }
+      if (name) {
+        console.log("gCast deviceFound", name, host);
+      }
+    } else {
+      console.log("gCast deviceFound (added)", name, name);
+    }
   }
+}
+
+function getIp() {
+  let ip = "";
+  let ip2 = [];
+  let alias = 0;
+  const ifaces= os.networkInterfaces();
+  for (let dev in ifaces) {
+    ifaces[dev].forEach((details) => {
+      if (details.family === "IPv4" && !details.internal) {
+        if (!/(loopback|vmware|internal|hamachi|vboxnet|virtualbox)/gi.test(dev + (alias ? ":" + alias : ""))) {
+          if (details.address.substring(0, 8) === "192.168." || details.address.substring(0, 7) === "172.16." || details.address.substring(0, 3) === "10.") {
+            if (!ip.startsWith("192.168.") || (ip2.startsWith("192.168.") && !ip.startsWith("192.168.") && ip2.startsWith("172.16.") && !ip.startsWith("192.168.") && !ip.startsWith("172.16.")) || (ip2.startsWith("10.") && !ip.startsWith("192.168.") && !ip.startsWith("172.16.") && !ip.startsWith("10."))) {
+              ip = details.address;
+            }
+            ++alias;
+          }
+        }
+      }
+    });
+  }
+  return ip;
 }
 
