@@ -30,11 +30,26 @@ airtunes.stdout.pipe(process.stdout);
 airtunes.stderr.pipe(process.stdout);
 ws.on('error', console.error);
 
+// ws.on('open', function open() {
+//   ws.send(JSON.stringify({"type":"addDevices",
+//        "host":"192.168.100.5",
+//        "args":{"port":7000,
+//        "volume":20, "airplay2": true ,
+//       //  "password":"853228",
+//        //txt: ["cn=0,1","da=true","et=0,4","ft=0x445F8A00,0x1C340","fv=p20.72.2-40060","md=0,1,2","am=Bookshelf","sf=0x4","tp=UDP","vn=65537","vs=366.0","pk=lol"],
+//         //txt: ["acl=0","deviceid=","features=0x445F8A00,0x1C340","rsf=0x0","fv=p20.72.2-40060","flags=0x4","model=Bookshelf","manufacturer=Sonos","serialNumber=nol","protovers=1.1","srcvers=366.0","pi=nol","gid=nol","gcgl=0","pk=lolno"],
+//        "txt":["cn=0,1,2,3","da=true","et=0,3,5","ft=0x4A7FCA00,0xBC354BD0","sf=0xa0404","md=0,1,2","am=AudioAccessory5,1","pk=lolno","tp=UDP","vn=65537","vs=670.6.2","ov=16.2","vv=2"],
+//        //"txt":["cn=0,1,2,3","da=true","et=0,3,5","ft=0x4A7FCA00,0xBC354BD0","sf=0x80484","md=0,1,2","am=AudioAccessory5,1","pk=lol","tp=UDP","vn=65537","vs=670.6.2","ov=16.2","vv=2"],
+//        "debug":true,
+//        "forceAlac":false}}))     
+// });
+
 ws.on('open', function open() {
   ws.send(JSON.stringify({"type":"addDevices",
-       "host":"192.168.100.5",
-       "args":{"port":7000,
-       "volume":20, "airplay2": true ,
+        "devicetype": "googlecast",
+       "host":"192.168.100.7",
+       "args":{"port": '',
+       "volume":20, "airplay2": true ,      
       //  "password":"853228",
        //txt: ["cn=0,1","da=true","et=0,4","ft=0x445F8A00,0x1C340","fv=p20.72.2-40060","md=0,1,2","am=Bookshelf","sf=0x4","tp=UDP","vn=65537","vs=366.0","pk=lol"],
         //txt: ["acl=0","deviceid=","features=0x445F8A00,0x1C340","rsf=0x0","fv=p20.72.2-40060","flags=0x4","model=Bookshelf","manufacturer=Sonos","serialNumber=nol","protovers=1.1","srcvers=366.0","pi=nol","gid=nol","gcgl=0","pk=lolno"],
@@ -43,6 +58,7 @@ ws.on('open', function open() {
        "debug":true,
        "forceAlac":false}}))     
 });
+
 
 ffmpeg.stdout.on('data', function(data) {
   try{
@@ -53,7 +69,7 @@ ffmpeg.stdout.on('data', function(data) {
 
 
 ws.on('message', function message(data) {
-  console.log('received: %s', data);
+ // console.log('received: %s', data);
   data = JSON.parse(data)
   if (data.status == "ready"){
     setInterval(()=>{
@@ -73,6 +89,7 @@ ws.on('message', function message(data) {
             {"type":"setArtworkB64",
             "devicekey": data.key,
             "contentType" : "image/jpeg",
+            "artworkURL": radiostatus.song.artwork_src,
             "artwork": buffer.toString('base64')}
           ))
         })

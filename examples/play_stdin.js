@@ -10,11 +10,14 @@ const { Stream } = require('stream');
 var NicerCast = require('nicercast');
 var audioStream = new Stream.PassThrough();
 const getPortSync = require('get-port-sync');
+const Chromecast = require('./ccast/lib.js');
 
 // console.log(await getPort());
 process.env.UV_THREADPOOL_SIZE = 6;
 
 var airtunes = new AirTunes();
+var chromecast = new Chromecast();
+
 
 process.stdin.on('data',  (data) => {
   airtunes.write(data);
@@ -22,24 +25,26 @@ process.stdin.on('data',  (data) => {
 });
 
 // monitor buffer events
-airtunes.on('buffer', function(status) {
-  console.log('buffer ' + status);
+// airtunes.on('buffer', function(status) {
+//   console.log('buffer ' + status);
 
-  // after the playback ends, give some time to AirTunes devices
-  // if(status === 'end') {
-  //   console.log('playback ended, waiting for AirTunes devices');
-  //   setTimeout(function() {
-  //     airtunes.stopAll(function() {
-  //       console.log('end');
-  //       process.exit();
-  //     });
-  //   }, 2000);
-  // }
-});
+//   // after the playback ends, give some time to AirTunes devices
+//   // if(status === 'end') {
+//   //   console.log('playback ended, waiting for AirTunes devices');
+//   //   setTimeout(function() {
+//   //     airtunes.stopAll(function() {
+//   //       console.log('end');
+//   //       process.exit();
+//   //     });
+//   //   }, 2000);
+//   // }
+// });
+
 var HttpAudioPort = getPortSync();
 console.log("HttpAudioPort", HttpAudioPort);
 var server = new NicerCast(audioStream, {});
 server.start(HttpAudioPort);
+chromecast.setAudioPort(HttpAudioPort);
 
 // monitor buffer events
 airtunes.on('buffer', function(status) {
@@ -67,6 +72,19 @@ airtunes.on('device', function(key, status, desc) {
   console.log("deviceStatus", key, status, desc);
 })
 
+chromecast.on('device', function(key, status, desc) {
+  let status_json =  {
+    type : "deviceStatus",
+    key : key ?? "",
+    status: status ?? "",
+    desc: desc ?? ""
+  }
+  if(worker != null){
+    worker.postMessage(JSON.stringify(status_json));
+  }
+  console.log("deviceStatus", key, status, desc);
+});
+
 const worker = new Worker(join(__dirname, "play_stdin_worker.js"));  
 worker.on("message", (result) => {
   parsed_data = JSON.parse(ab2str(result.message));
@@ -88,14 +106,21 @@ worker.on("message", (result) => {
         // "txt":["tp=UDP","sm=false","sv=false","ek=1","et=0,1","md=0,1,2","cn=0,1","ch=2","ss=16","sr=44100","pw=false","vn=3","txtvers=1"],
         // "airplay2":1,
         // "debug":true,
-        // "forceAlac":false}}'
-        airtunes.add(parsed_data.host, parsed_data.args);
+        // "forceAlac":false,  
+        // "devicetype": "airplay"}}}}'
+        if ((parsed_data.devicetype ?? "")  == "googlecast") {
+          chromecast.stream({type : "googlecast" , host : parsed_data.host }, 'Cider 2', 'Streaming...', '', '');
+        } else {
+          airtunes.add(parsed_data.host, parsed_data.args);
+        }
+
     } else if (parsed_data.type == "setVolume"){
         // Sample data for setting volume:
         // {"type":"setVolume",
         //  "devicekey": "192.168.3.4:7000",
         //  "volume":30}
         airtunes.setVolume(parsed_data.devicekey, parsed_data.volume,function(){});
+        chromecast.setVolume(parsed_data.devicekey, parsed_data.volume);
     } else if (parsed_data.type == "setProgress"){
         // Sample data for setting progress:
         // {"type":"setProgress",
@@ -108,14 +133,18 @@ worker.on("message", (result) => {
         // {"type":"setArtwork",
         //  "devicekey": "192.168.3.4:7000",
         //  "contentType" : "image/png",
+        //  "artworkURL": "url",
         //  "artwork": "hex data"}
         airtunes.setArtwork(parsed_data.devicekey, Buffer.from(parsed_data.artwork,"hex"),parsed_data.contentType);
+        chromecast.setArtwork(parsed_data.devicekey,parsed_data.artworkURL ?? '');
     } else if (parsed_data.type == "setArtworkB64"){
         // Sample data for setting artwork:
-        // {"type":"setArtworkURL",
+        // {"type":"setArtworkB64",
         //  "devicekey": "192.168.3.4:7000",
         //  "contentType" : "image/png",
+        //  "artworkURL": "url",
         //  "artwork": "url"}
+        chromecast.setArtwork(parsed_data.devicekey,parsed_data.artworkURL ?? '');
         airtunes.setArtwork(parsed_data.devicekey,Buffer.from(parsed_data.artwork,'base64'),parsed_data.contentType);
     } else if (parsed_data.type == "setTrackInfo"){
         // Sample data for setting track info:
@@ -125,6 +154,7 @@ worker.on("message", (result) => {
         //  "album": "John Doe Album",
         //  "name": "John Doe Song"}
         airtunes.setTrackInfo(parsed_data.devicekey, parsed_data.name, parsed_data.artist, parsed_data.album, function(){});
+        chromecast.setTrackInfo(parsed_data.devicekey, parsed_data.name, parsed_data.artist, parsed_data.album, parsed_data.artworkURL ?? '');
     } else if (parsed_data.type == "setPasscode"){
         // Sample data for setting passcode:
         // {"type":"setPasscode",
@@ -136,10 +166,12 @@ worker.on("message", (result) => {
         // {"type":"stop",
         //  "devicekey": "192.168.3.4:7000"}
         airtunes.stop(parsed_data.devicekey);
+        chromecast.stop(parsed_data.devicekey);
     } else if (parsed_data.type == "stopAll"){
         // Sample data for stopping all:
         // {"type":"stopAll"}
         airtunes.stopAll(null);
+        chromecast.stopAll();
     } else if (parsed_data.type == "sendAudio"){
         // Sample data for playing:
         // {"type":"sendAudio",
@@ -193,7 +225,7 @@ function getAvailableDevices() {
     if (service.addresses && service.fullname && service.fullname.includes("_googlecast._tcp")) {
       let a = service.txt.filter((u) => String(u).startsWith("fn="));
       let name = (a[0] ?? "").substring(3) != "" ? (a[0] ?? "").substring(3) : service.fullname.substring(0, service.fullname.indexOf("._googlecast"));
-      ondeviceup(name + " (" + (service.type[0]?.description ?? "") + ")", service.addresses[0], 9999, service.addresses, null, null , "googlecast");
+      ondeviceup(name + " (" + (service.type[0]?.description ?? "") + ")", service.addresses[0], '', service.addresses, null, null , "googlecast");
     }
   });
 

@@ -21,7 +21,8 @@
          "txt":["tp=UDP","sm=false","sv=false","ek=1","et=0,1","md=0,1,2","cn=0,1","ch=2","ss=16","sr=44100","pw=false","vn=3","txtvers=1"],
          "airplay2":1,
          "debug":true,
-         "forceAlac":false}}
+         "forceAlac":false,
+         "devicetype": "airplay"}} // devicetype: airplay or googlecast
 
 3. Setting volume:
 
@@ -41,7 +42,8 @@
          {"type":"setArtwork",
           "devicekey": "192.168.3.4:7000",
           "contentType" : "image/png",
-          "artwork": "hex data"}
+          "artworkURL": "http://xxx.xxx.xxx/xxx.png"
+          "artwork": "b64 data"}
 
 6. Setting track info:
 
@@ -82,7 +84,8 @@
     "port":7000,
     "addresses":["192.168.100.12"],
     "txt":["cn=0,1,2,3","da=true","et=0,3,5","ft=0x4A7FCA00,0xBC354BD0","sf=0x80404","md=0,1,2","am=AudioAccessory5,1","pk=sample","tp=UDP","vn=65537","vs=670.6.2","ov=16.2","vv=2"],
-    "airplay2":null}]}
+    "airplay2":null,
+    "devicetype": "airplay"}]}
 
 2. Device status:
 
