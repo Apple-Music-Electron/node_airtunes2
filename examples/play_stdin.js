@@ -226,8 +226,8 @@ function getAvailableDevices() {
     }
   });
 
-  let browser3 = mdns.createBrowser(mdns.tcp("googlecast"));
-  browser3.on("ready", browser.discover);
+  const browser3 = mdns.createBrowser(mdns.tcp("googlecast"));
+  browser3.on("ready", browser3.discover);
 
   browser3.on("update", (service) => {
     if (service.addresses && service.fullname && service.fullname.includes("_googlecast._tcp")) {
