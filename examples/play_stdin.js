@@ -146,6 +146,14 @@ worker.on("message", (result) => {
         //  "artwork": "url"}
         chromecast.setArtwork(parsed_data.devicekey,parsed_data.artworkURL ?? '');
         airtunes.setArtwork(parsed_data.devicekey,Buffer.from(parsed_data.artwork,'base64'),parsed_data.contentType);
+    } else if (parsed_data.type == "setTrackInfoGC"){
+        // Sample data for setting track info:
+        // {"type":"setTrackInfoGC",
+        //  "devicekey": "192.168.3.4:7000",
+        //  "artist": "John Doe",
+        //  "album": "John Doe Album",
+        //  "name": "John Doe Song"}
+        chromecast.setTrackInfo(parsed_data.devicekey, parsed_data.name, parsed_data.artist, parsed_data.album, parsed_data.artworkURL ?? '');
     } else if (parsed_data.type == "setTrackInfo"){
         // Sample data for setting track info:
         // {"type":"setTrackInfo",
