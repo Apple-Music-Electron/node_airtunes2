@@ -17,7 +17,11 @@ process.env.UV_THREADPOOL_SIZE = 6;
 
 var airtunes = new AirTunes();
 var chromecast = new Chromecast();
+var browser_on = false;
 
+var browser = null;
+var browser2 = null;
+var browser3 = null;
 
 process.stdin.on('data',  (data) => {
   airtunes.write(data);
@@ -93,6 +97,11 @@ worker.on("message", (result) => {
         //'{"type":"scanDevices",
         // "timeout": 3000}
         castDevices = [];
+        try{
+          browser.stop();
+          browser2.stop();
+          browser3.stop();
+        } catch (e) {}
         getAvailableDevices();
         setTimeout(() => { worker.postMessage(JSON.stringify({
           type : "airplayDevices", devices: castDevices}));}, parsed_data.timeout ?? 1000);
@@ -145,7 +154,7 @@ worker.on("message", (result) => {
         //  "artworkURL": "url",
         //  "artwork": "url"}
         chromecast.setArtwork(parsed_data.devicekey,parsed_data.artworkURL ?? '');
-        airtunes.setArtwork(parsed_data.devicekey,Buffer.from(parsed_data.artwork,'base64'),parsed_data.contentType);
+        airtunes.setArtwork(parsed_data.devicekey,Buffer.from(parsed_data.artwork ?? '','base64'),parsed_data.contentType ?? '');
     } else if (parsed_data.type == "setTrackInfoGC"){
         // Sample data for setting track info:
         // {"type":"setTrackInfoGC",
@@ -198,7 +207,7 @@ worker.on("message", (result) => {
 });
 
 function getAvailableDevices() {
-  const browser = mdns.createBrowser(mdns.tcp("raop"));
+  browser = mdns.createBrowser(mdns.tcp("raop"));
   browser.on("ready", browser.discover);
 
   browser.on("update", (service) => {
@@ -212,7 +221,7 @@ function getAvailableDevices() {
     }
   });
 
-  const browser2 = mdns.createBrowser(mdns.tcp("airplay"));
+  browser2 = mdns.createBrowser(mdns.tcp("airplay"));
   browser2.on("ready", browser2.discover);
 
   browser2.on("update", (service) => {
@@ -226,7 +235,7 @@ function getAvailableDevices() {
     }
   });
 
-  const browser3 = mdns.createBrowser(mdns.tcp("googlecast"));
+  browser3 = mdns.createBrowser(mdns.tcp("googlecast"));
   browser3.on("ready", browser3.discover);
 
   browser3.on("update", (service) => {

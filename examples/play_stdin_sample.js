@@ -8,6 +8,8 @@ process.env.UV_THREADPOOL_SIZE = 6;
 
 var airtunes = new AirTunes();
 
+var browser_on = false;
+
 process.stdin.on('data', function (data) {
   airtunes.write(data);
 });
@@ -137,34 +139,36 @@ worker.on("message", (result) => {
 });
 
 function getAvailableDevices() {
-  const browser = mdns.createBrowser(mdns.tcp("raop"));
-  browser.on("ready", browser.discover);
+  if (!browser_on) {
+    browser_on = true;
+    const browser = mdns.createBrowser(mdns.tcp("raop"));
+    browser.on("ready", browser.discover);
 
-  browser.on("update", (service) => {
-    if (service.addresses && service.fullname && service.fullname.includes("_raop._tcp")) {
-      // console.log(service.txt)
-      console.log(
-                `${service.name} ${service.host}:${service.port} ${service.addresses} ${service.fullname}`
-      )
-      let itemname = service.fullname.substring(service.fullname.indexOf("@") + 1, service.fullname.indexOf("._raop._tcp"));
-      ondeviceup(itemname, service.host, service.port, service.addresses, service.txt);
-    }
-  });
+    browser.on("update", (service) => {
+      if (service.addresses && service.fullname && service.fullname.includes("_raop._tcp")) {
+        // console.log(service.txt)
+        console.log(
+                  `${service.name} ${service.host}:${service.port} ${service.addresses} ${service.fullname}`
+        )
+        let itemname = service.fullname.substring(service.fullname.indexOf("@") + 1, service.fullname.indexOf("._raop._tcp"));
+        ondeviceup(itemname, service.host, service.port, service.addresses, service.txt);
+      }
+    });
 
-  const browser2 = mdns.createBrowser(mdns.tcp("airplay"));
-  browser2.on("ready", browser2.discover);
+    const browser2 = mdns.createBrowser(mdns.tcp("airplay"));
+    browser2.on("ready", browser2.discover);
 
-  browser2.on("update", (service) => {
-    if (service.addresses && service.fullname && service.fullname.includes("_airplay._tcp")) {
-      // console.log(service.txt)
-      console.log(
-        `${service.name} ${service.host}:${service.port} ${service.addresses} ${service.fullname}`
-      )
-      let itemname = service.fullname.substring(service.fullname.indexOf("@") + 1, service.fullname.indexOf("._airplay._tcp"));
-      ondeviceup(itemname, service.host, service.port, service.addresses, service.txt, true);
-    }
-  });
-
+    browser2.on("update", (service) => {
+      if (service.addresses && service.fullname && service.fullname.includes("_airplay._tcp")) {
+        // console.log(service.txt)
+        console.log(
+          `${service.name} ${service.host}:${service.port} ${service.addresses} ${service.fullname}`
+        )
+        let itemname = service.fullname.substring(service.fullname.indexOf("@") + 1, service.fullname.indexOf("._airplay._tcp"));
+        ondeviceup(itemname, service.host, service.port, service.addresses, service.txt, true);
+      }
+    });
+  }
 }
 
 function ondeviceup(name, host, port, addresses, text, airplay2 = null) {
