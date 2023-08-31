@@ -27,7 +27,8 @@
     "build-binaries-electron2": "prebuild --platform darwin -a arm64 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 25.0.0-alpha.1 -t 24.0.0-alpha.1 -t 23.0.0-alpha.1 -t 22.0.0-alpha.1 -t 21.0.0 -t 20.1.0 -t 19.0.3 -t 18.3.3",
     "install": "prebuild-install || (npm run rebuild || (true || VER>NUL))",
     "rebuild": "node-gyp configure build",
-    "exe": "pkg .",
+    "exe": "pkg --compress Brotli .",
+    "exefast": "pkg .",
     "vaportest": "node examples\\play_radio.js --host 192.168.100.12 --port 7000  --debug true --mode 1 --airplay2 1"
   },
   "licenses": [
@@ -43,7 +44,11 @@
     ],
     "assets": [
       "build/Release/obj/airtunes/*",
-      "node_modules/lame/build/Release/*"
+      "node_modules/lame/build/Release/*",
+      "node_modules/deasync/bin/darwin-x64-node-18/*",
+      "node_modules/deasync/bin/linux-x64-node-18/*",
+      "node_modules/deasync/bin/win32-x64-node-18/*",
+      "node_modules/castv2/lib/*.proto"
     ],
     "targets": [
       "node18-win"
@@ -55,12 +60,14 @@
     "async": "^3.2.1",
     "axlsign": "git+https://github.com/ciderapp/curve25519-js.git",
     "big-integer": "^1.6.25",
+    "castv2-client": "^1.2.0",
     "chacha-js": "https://github.com/ciderapp/chacha20poly1305",
     "crypto-js": "^4.1.1",
     "curve25519-js": "^0.0.4",
     "electron-fetch": "^1.7.4",
     "elliptic": "^6.4.0",
     "fast-srp-hap": "^2.0.4",
+    "get-port-sync": "^1.0.1",
     "js-crypto-aes": "^1.0.4",
     "js-sha1": "^0.4.1",
     "lodash": "^4.17.4",
