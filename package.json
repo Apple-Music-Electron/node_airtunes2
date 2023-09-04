@@ -10,7 +10,7 @@
     "audio",
     "cider"
   ],
-  "version": "2.4.6",
+  "version": "2.4.7",
   "author": "vapormusic <vapormusic.service@gmail.com>",
   "main": "./lib/index.js",
   "bin": "./examples/play_stdin.js",
@@ -67,7 +67,6 @@
     "electron-fetch": "^1.7.4",
     "elliptic": "^6.4.0",
     "fast-srp-hap": "^2.0.4",
-    "get-port-sync": "^1.0.1",
     "js-crypto-aes": "^1.0.4",
     "js-sha1": "^0.4.1",
     "lodash": "^4.17.4",
@@ -82,6 +81,7 @@
     "yargs": "^9.0.1"
   },
   "optionalDependencies": {
+    "get-port-sync": "^1.0.1",
     "nicercast": "github:vapormusic/nicercast"
   },
   "devDependencies": {
