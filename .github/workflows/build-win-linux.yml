@@ -65,9 +65,6 @@ jobs:
       - name: Build binaries
         run: yarn run build-binaries-electron
 
-      - name: Build executable
-        run: yarn exe 
-              
       - name: Upload a Build Artifact
         uses: actions/upload-artifact@v3.1.0
         with:
@@ -133,6 +130,5 @@ jobs:
           automatic_release_tag: "v2.4.6"
           prerelease: false
           files: |
-              ./windows/airtunes2.exe
               ./**/*.tar.gz
 
