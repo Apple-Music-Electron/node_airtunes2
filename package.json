@@ -82,7 +82,7 @@
     "yargs": "^9.0.1"
   },
   "optionalDependencies": {
-    "nicercast": "github:vapormusic/nicercast",
+    "nicercast": "github:vapormusic/nicercast"
   },
   "devDependencies": {
     "node-abi": "^3.31.0",
