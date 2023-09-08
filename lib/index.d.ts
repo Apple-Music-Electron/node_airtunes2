@@ -71,7 +71,7 @@ declare namespace AirTunes {
     /**
      * Stop a device
      */
-    stop(deviceKey: string, cb: Function): void
+    stop(deviceKey: string, cb?: Function): void
 
     /**
      * End the circular buffer
@@ -84,7 +84,7 @@ declare namespace AirTunes {
      * @param volume The volume to set (0-100)
      * @param cb The callback function
      */
-    setVolume(deviceKey: string, volume: string, cb: Function): void
+    setVolume(deviceKey: string, volume: string, cb?: Function): void
 
     /**
      * Set the current playback position of a device
@@ -93,7 +93,7 @@ declare namespace AirTunes {
      * @param duration The duration of the track
      * @param callback The callback function
      */
-    setProgress(deviceKey: string, progress: number, duration: number, callback: Function): void
+    setProgress(deviceKey: string, progress: number, duration: number, callback?: Function): void
 
     /**
      * Set the playback state of a device
@@ -103,7 +103,7 @@ declare namespace AirTunes {
      * @param album The album of the track
      * @param callback The callback function
      */
-    setTrackInfo(deviceKey: string, name: string, artist: string, album: string, callback: Function): void
+    setTrackInfo(deviceKey: string, name: string, artist: string, album: string, callback?: Function): void
 
     /**
      * Reset the AirTunes client
@@ -117,7 +117,7 @@ declare namespace AirTunes {
      * @param contentType The content type of the artwork
      * @param callback The callback function
      */
-    setArtwork(deviceKey: string, art: string, contentType: string, callback?: Function): void
+    setArtwork(deviceKey: string, art: string | Buffer, contentType: string, callback?: Function): void
 
 
     /**
