@@ -2128,11 +2128,6 @@ node-abi@^3.3.0, node-abi@^3.31.0:
   dependencies:
     semver "^7.3.5"
 
-node-daap@^1.0.3:
-  version "1.0.3"
-  resolved "https://registry.yarnpkg.com/node-daap/-/node-daap-1.0.3.tgz#ac9c8c9c0a6ba424645c0e71d853cd4d332afeb3"
-  integrity sha512-5TTfWjBkGJjpPCZB4kJarIs4fGGI0kBaVTL6OmKc2DJ8FyQ4o6+J0fsairzL3yrM0jQUu1t4TRhn6GOQfRDoVQ==
-
 node-fetch@^2.6.6:
   version "2.7.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.7.0.tgz#d0f0fa6e3e2dc1d27efcd8ad99d550bda94d187d"
@@ -3353,6 +3348,11 @@ type@^2.7.2:
   version "2.7.2"
   resolved "https://registry.yarnpkg.com/type/-/type-2.7.2.tgz#2376a15a3a28b1efa0f5350dcf72d24df6ef98d0"
   integrity sha512-dzlvlNlt6AXU7EBSfpAscydQ7gXB+pPGsPnfJnZpiNJBDj7IaJzQlBZYGdEi4R9HmPdBv2XmWJ6YUtoTa7lmCw==
+
+underscore@^1.13.6:
+  version "1.13.6"
+  resolved "https://registry.yarnpkg.com/underscore/-/underscore-1.13.6.tgz#04786a1f589dc6c09f761fc5f45b89e935136441"
+  integrity sha512-+A5Sja4HP1M08MaXya7p5LvjuM7K6q/2EaC0+iovj/wOcMsTzMvDFbasi/oSapiwOlt252IqsKqPjCl7huKS0A==
 
 unique-filename@^1.1.1:
   version "1.1.1"

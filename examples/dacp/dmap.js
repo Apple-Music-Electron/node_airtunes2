@@ -56,13 +56,15 @@ function encodedValueLength(item) {
       return 4;
     case contentCodes.type.string:
       return Buffer.byteLength(value(item));
+    case contentCodes.type.data:
+        return Buffer.from(value(item), 'hex').byteLength;
     case contentCodes.type.list:
       return value(item).reduce(function(memo, child) {
         return memo + encodedLength(child);
       }, 0);
   }
 
-  throw new TypeError('cannot calculate encoded value length for tag ' + tag);
+  throw new TypeError('cannot calculate encoded value length for tag ' + tag(item));
 }
 //exports.encodedValueLength = encodedValueLength;
 
@@ -82,6 +84,8 @@ function packer(itemTag) {
       return binary.packDate;
     case contentCodes.type.string:
       return binary.packString;
+    case contentCodes.type.data:
+      return binary.packData;
     case contentCodes.type.list:
       return function(list, buffer, index) {
         var ptr = index;
@@ -113,6 +117,8 @@ function unpacker(itemTag) {
       return binary.unpackDate;
     case contentCodes.type.string:
       return binary.unpackString;
+    case contentCodes.type.data:
+      return binary.unpackData;
     case contentCodes.type.list:
       return function (buffer, index, length) {
         var children = new Array();

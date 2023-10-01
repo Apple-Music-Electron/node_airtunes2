@@ -82,52 +82,17 @@ DACPServer.prototype.startHTTPServer = function () {
 
   app.get("/server-info", (req, res) => {
     console.log("[DACP] sent server info");
-    console.log(Math.round(new Date().getTime() / 1000));
-    var data = daap_encode({
-      msrv: {
-        mstt: 200,
-        mpro: { major: 0, minor: 0 },
-        minm: "Cider",
-        apro: { major: 0, minor: 0 },
-        aeSV: { major: 0, minor: 0 },
-        ated: 483699,
-        asgr: 221555,
-        asse: 0,
-        aeMQ: 1,
-        mscu: 0,
-        aeFR: 100,
-        aeTr: 1,
-        aeSL: 1,
-        aeSR: 1,
-        //   aeFP: 1,
-        aeSX: 0,
-        ppro: { major: 0, minor: 0 },
-        msed: 1,
-        msml: 109,
-        mslr: 0,
-        mstm: 1800,
-        msal: 1,
-        msas: 3,
-        msup: 1,
-        mspi: 1,
-        msex: 1,
-        msbr: 1,
-        msqy: 1,
-        msix: 1,
-        msrs: 1,
-        msdc: 2,
-        mstc: 1695537174,
-        msto: 25200,
-      },
-    });
-    console.log(data);
+    fake_data = Buffer.from(
+      "6d737276000001656d73747400000004000000c86d70726f000000040002000d6d696e6d0000000543696465726170726f000000040003000d61655356000000040003000f61746564000000020007617367720000000200036173736500000008000000000008000061654d5100000001016d73637500000008000000000000003f6165465200000001646165547200000001016165534c00000001016165535200000001017070726f00000004000200016d73656400000001016d736d6c000000206d736d610000000800005fbd055ed5e06d736d610000000800001571da7d1a006d736c7200000001016d73746d00000004000007086d73616c00000001016d73617300000001036d73757000000001016d73706900000001016d73657800000001016d73627200000001016d73717900000001016d73697800000001016d73727300000001016d73646300000004000000026d737463000000046519122b6d73746f0000000400006270",
+      "hex"
+    );
     res.set({
       Date: new Date().toString(),
       "Content-Type": "application/x-dmap-tagged",
       "DAAP-Server": "daap.js/0.0",
     });
 
-    res.send(data);
+    res.send(fake_data);
   });
 
   app.get("/login", (req, res) => {
@@ -190,15 +155,19 @@ DACPServer.prototype.startHTTPServer = function () {
   });
 
   app.get("/update", (req, res) => {
-    console.log("[DACP] accept update");
+    //console.log("[DACP] accept update");
     //http://daap.sourceforge.net/docs/server-info.html
-    var data = daap_encode({ 
-            mupd: {
-             mstt: 200, 
-             musr: 4 
-            } 
-        }
-        );
+    const rev_number = req.query["revision-number"];
+    if (rev_number == 4) {
+      console.log("huh");
+      return;
+    }
+    var data = daap_encode({
+      mupd: {
+        mstt: 200,
+        musr: 4,
+      },
+    });
 
     res.set({
       Date: new Date().toString(),
@@ -212,27 +181,27 @@ DACPServer.prototype.startHTTPServer = function () {
     console.log("[DACP] send databases");
     //http://daap.sourceforge.net/docs/server-info.html
     var data = daap_encode({
-            avdb: {
-                mstt:200,
-                muty:0,
-                mtco:2,
-                mrco:2,
-                mlcl:{
-                    mlit:{
-                        miid:1,
-                        mper:640516736,
-                        mdbk:1,
-                        aeCs:3,
-                        aeIM:1236455424,
-                        minm:"Cider Library",
-                        mimc:2320,
-                        mctc:46,
-                        aeMk:1,
-                        meds:3
-                    }}
-            }}
-
-        );
+      avdb: {
+        mstt: 200,
+        muty: 0,
+        mtco: 2,
+        mrco: 2,
+        mlcl: {
+          mlit: {
+            miid: 1,
+            mper: 640516736,
+            mdbk: 1,
+            aeCs: 3,
+            aeIM: 1236455424,
+            minm: "Cider Library",
+            mimc: 2320,
+            mctc: 46,
+            aeMk: 1,
+            meds: 3,
+          },
+        },
+      },
+    });
 
     res.set({
       Date: new Date().toString(),
@@ -246,22 +215,35 @@ DACPServer.prototype.startHTTPServer = function () {
     console.log("[DACP] send databases");
     //http://daap.sourceforge.net/docs/server-info.html
     var data = daap_encode({
-            aply: {
-                mstt:200,
-                muty:0,
-                mrco:1,
-                mtco:1,
-                mlcl:{
-                    mlit:{
-                        meds:103,
-                        miid:6969,
-                        minm:"Cider Playlist",
-                        mpco:0,
-                        mper:640516736,
-                    }}
-            }}
-
-        );
+      aply: {
+        mstt: 200,
+        muty: 0,
+        mrco: 1,
+        mtco: 1,
+        mlcl: [
+          {
+            mlit: {
+              miid: 6969,
+              mper: 1343299584,
+              minm: "Cider Library",
+              abpl: 1,
+              mpco: 0,
+              meds: 0,
+              mimc: 768,
+            },
+          },
+          {
+            mlit: {
+              meds: 103,
+              miid: 6969,
+              minm: "Cider Playlist",
+              mpco: 0,
+              mper: 640516736,
+            },
+          },
+        ],
+      },
+    });
 
     res.set({
       Date: new Date().toString(),
@@ -271,98 +253,299 @@ DACPServer.prototype.startHTTPServer = function () {
     res.send(data);
   });
 
+  app.get("/ctrl-int/1/getspeakers", (req, res) => {
+    // console.log("[DACP] getspeaker");
+    //http://daap.sourceforge.net/docs/server-info.html
+    // var data = daap_encode({
+    //   casp: {
+    //     mstt: 200,
+    //     mdcl: {
+    //       minm: "Computer",
+    //       msma: 0,
+    //       caia: 1,
+    //       cads: 1,
+    //       cmvo: 51,
+    //       cavd: 1,
+    //       caiv: 1
+    //     },
+    //   },
+    // });
+    var data = Buffer.from(
+      "63617370000000ba6d73747400000004000000c86d64636c00000056636d766f00000004000000646361647300000004000000016d696e6d0000000b4d7920436f6d70757465726361696100000001016361766400000001016361697600000001016d736d610000000800000000000000006d64636c000000486d696e6d00000007426564726f6f6d6361647300000004000000016d736d6100000008000038420b9276c06361636400000009426f6f6b7368656c66636d766f0000000400000019",
+      "hex"
+    );
+    res.set({
+      Date: new Date().toString(),
+      "Content-Type": "application/x-dmap-tagged",
+      "DAAP-Server": "daap.js/0.0",
+    });
+    res.send(data);
+  });
 
-    app.get("/ctrl-int/1/getspeakers", (req, res) => {
-     // console.log("[DACP] getspeaker");
-      //http://daap.sourceforge.net/docs/server-info.html
-      var data = daap_encode({
-        casp: {
-           mstt: 200 ,
-           mdcl: {
-               minm: "Computer",
-               msma: 0 ,
-               caia: true ,
-               cmvo: 100 ,
-            }
-        }   
-      });
+  app.get("/ctrl-int/1/getproperty", (req, res) => {
+    // console.log("[DACP] property");
 
-      res.set({
-        Date: new Date().toString(),
-        "Content-Type": "application/x-dmap-tagged",
-        "DAAP-Server": "daap.js/0.0",
-      });
-      res.send(data);
+    var data = daap_encode({
+      cmgt: { mstt: 200, cmvo: 51 },
     });
 
-    app.get("/ctrl-int/1/getproperty", (req, res) => {
-      // console.log("[DACP] property");
+    res.set({
+      Date: new Date().toString(),
+      "Content-Type": "application/x-dmap-tagged",
+      "DAAP-Server": "daap.js/0.0",
+    });
+    res.send(data);
+  });
 
-      var data = daap_encode({
-        cmgt: { mstt: 200 ,  cmvo: 100 },
-      });
+  app.get("/ctrl-int/1/playstatusupdate", (req, res) => {
+    // console.log("[DACP] playstatusupdate");
+    //http://daap.sourceforge.net/docs/server-info.html
+    /// cmst --+
+    ///     mstt 4 000000c8 == 200
+    ///     cmsr 4 00000006 == 6 # revision-number
+    ///     caps 1 04 == 4 # play status: 4=playing, 3=paused, 2=stopped
+    ///     cash 1 01 == 1 # shuffle status: 0=off, 1=on
+    ///     carp 1 00 == 0 # repeat status: 0=none, 1=single, 2=all
+    ///     cavc 1 01 == 1 # volume controllable: 0=false, 1=true
+    ///     caas 4 00000002 == 2 # available shuffle states, only seen '2'
+    ///     caar 4 00000006 == 6 # available repeat states, only seen '6'
+    ///     canp 16 00000026000052200000530200000f68 #4 ids: dbid, plid, playlistItem, itemid
+    ///     cann 13 Secret Crowds # track
+    ///     cana 17 Angels & Airwaves # artist
+    ///     canl 8 I-Empire # album
+    ///     cang 0 # genre
+    ///     asai 8 a0d34e8b82616ae8 == 11588692627249261288 # album-id
+    ///     cmmk 4 00000001 == 1 # MediaKind (1 = song)
+    ///     cant 4 0003a15f == 237919 # remaining track time in ms
+    ///     cast 4 0004a287 == 303751 # total track length in ms
+    ///     cavs 1 01 == 1 # visualizer controllable: 0=false, 1=true
+    ///     cafs 1 01 == 1 # fullscreen controllable: 0=false, 1=true
+    ///     ceGS 1 01 == 1 # genius selectable: 0=false, 1=true
 
-      res.set({
-        Date: new Date().toString(),
-        "Content-Type": "application/x-dmap-tagged",
-        "DAAP-Server": "daap.js/0.0",
-      });
-      res.send(data);
+    // get revision-number
+    const rev_number = req.query["revision-number"];
+    if (rev_number == 10) {
+      console.log("huh");
+      return;
+    }
+
+    var data = daap_encode2([
+      "cmst",
+      [
+        ["mstt", 200],
+        ["cmsr", 10],
+        ["caps", 2],
+        ["cash", 0],
+        ["carp", 0],
+        ["cafs", 0],
+        ["cavs", 0],
+        ["cavc", 1],
+        ["caas", 2],
+        ["caar", 6],
+        ["cafe", 0],
+        ["cave", 0],
+        ["casu", 0],
+        ["ceQu", 0],
+      ],
+    ]);
+
+    res.set({
+      Date: new Date().toString(),
+      "Content-Type": "application/x-dmap-tagged",
+      "DAAP-Server": "daap.js/0.0",
+    });
+    res.send(data);
+  });
+
+  app.get("/databases/1/groups", (req, res) => {
+    //GET /databases/1/groups?meta=dmap.itemname,dmap.itemid,dmap.persistentid,daap.songartist,daap.songyear,daap.songtracknumber,com.apple.itunes.cloud-id,daap.songartistid,daap.songalbumid,dmap.persistentid,daap.songtime,daap.songdatereleased,daap.songgenre,dmap.downloadstatus&type=music&group-type=albums&sort=album&include-sort-headers=0&query=('daap.songalbum:*Joji*'+'daap.songalbum!:'+('com.apple.itunes.extended-media-kind:1','com.apple.itunes.extended-media-kind:32'))&session-id=951632340
+    // get query
+    const query = req.query.query;
+    const meta = req.query.meta;
+    console.log(query);
+    console.log(meta);
+
+    // query example : ('daap.songalbum:*Love*' 'daap.songalbum:*me*' 'daap.songalbum:*like*' 'com.apple.itunes.extended-media-kind:8' 'daap.songalbum:*you*' 'daap.songalbum:*do*')
+    // get queried words (daap.songalbum) into 1 string
+
+    let queryWords = "";
+    try {
+      queryWords = query
+        .match(/daap\.songalbum:\*([^\*]*)\*/g)
+        .map((item) =>
+          item.replace(/daap\.songalbum:\*/g, "").replace(/\*/g, "")
+        )
+        .join(" ");
+      console.log(queryWords);
+    } catch (_) {}
+
+    // get media kind as
+    const mediaKinds = query
+      .match(/com\.apple\.itunes\.extended-media-kind:([0-9]*)/g)
+      .map((item) =>
+        item.replace(/com\.apple\.itunes\.extended-media-kind:/g, "")
+      );
+    console.log(mediaKinds);
+
+    var data = daap_encode({
+      agal: {
+        mstt: 200,
+        muty: 0,
+        mtco: 1,
+        mrco: 1,
+        mlcl: {
+          mlit: {
+            aeAK: "\u0000\u0000\u0000\u0002",
+            miid: 562,
+            mper: 10996525310630935000,
+            minm: "Besidju (feat. Joji) - Single",
+            asar: "Shamana",
+            asyr: 2016,
+            asgn: "Hip-Hop/Rap",
+            astm: 107467,
+            asdr: Date("2016-05-05T12:00:00.000Z"),
+            asai: 'a0d34e8b82616ae8',
+            mgds: 3,
+            mimc: 1,
+          },
+        },
+      },
     });
 
-    app.get("/ctrl-int/1/playstatusupdate", (req, res) => {
-     // console.log("[DACP] playstatusupdate");
-      //http://daap.sourceforge.net/docs/server-info.html
-      /// cmst --+
-      ///     mstt 4 000000c8 == 200
-      ///     cmsr 4 00000006 == 6 # revision-number
-      ///     caps 1 04 == 4 # play status: 4=playing, 3=paused, 2=stopped
-      ///     cash 1 01 == 1 # shuffle status: 0=off, 1=on
-      ///     carp 1 00 == 0 # repeat status: 0=none, 1=single, 2=all
-      ///     cavc 1 01 == 1 # volume controllable: 0=false, 1=true
-      ///     caas 4 00000002 == 2 # available shuffle states, only seen '2'
-      ///     caar 4 00000006 == 6 # available repeat states, only seen '6'
-      ///     canp 16 00000026000052200000530200000f68 #4 ids: dbid, plid, playlistItem, itemid
-      ///     cann 13 Secret Crowds # track
-      ///     cana 17 Angels & Airwaves # artist
-      ///     canl 8 I-Empire # album
-      ///     cang 0 # genre
-      ///     asai 8 a0d34e8b82616ae8 == 11588692627249261288 # album-id
-      ///     cmmk 4 00000001 == 1 # MediaKind (1 = song)
-      ///     cant 4 0003a15f == 237919 # remaining track time in ms
-      ///     cast 4 0004a287 == 303751 # total track length in ms
-      ///     cavs 1 01 == 1 # visualizer controllable: 0=false, 1=true
-      ///     cafs 1 01 == 1 # fullscreen controllable: 0=false, 1=true
-      ///     ceGS 1 01 == 1 # genius selectable: 0=false, 1=true
-      var data = daap_encode({
-        cmst: {
-           mstt: 200 ,
-           cmsr: 6 ,
-           caps: 2 ,
-           cash: 0 ,
-           carp: 0 ,
-           cafs: 0 ,
-           cavs: 0 ,
-           cavc: 1 ,
-           caas: 2 ,
-           caar: 6 ,
-           cafe: 0 ,
-           cave: 0 ,
-           casu: 0 ,
-           ceQu: 0 ,
-        }
-      });
-
-      res.set({
-        Date: new Date().toString(),
-        "Content-Type": "application/x-dmap-tagged",
-        "DAAP-Server": "daap.js/0.0",
-      });
-      res.send(data);
+    res.set({
+      Date: new Date().toString(),
+      "Content-Type": "application/x-dmap-tagged",
+      "DAAP-Server": "daap.js/0.0",
     });
 
+    if (mediaKinds.includes("1")) {
+      res.send(data);
+    } else {
+       res.send(
+        daap_encode({
+          agal: {
+            mstt: 200,
+            muty: 0,
+            mtco: 0,
+            mrco: 0}})
+      );
+    }
+  });
+
+  // GET /databases/1/items/4345/extra_data/artwork?mw=48&mh=48&session-id=951632340 HTTP/1.1
+
+  app.get("/databases/1/:type/:itemid/extra_data/artwork", (req, res) => {
+    const query = req.query.itemid;
+    fake_image =
+      "";
+
+    res.set({
+      Date: new Date().toString(),
+      "Content-Type": "image/jpeg",
+      "DAAP-Server": "daap.js/0.0",
+    });
+    res.send(Buffer.from(fake_image, "base64"));
+  });
+
+  app.get("/databases/1/containers/:containerid/items", (req, res) => {
+    //GET /databases/1/groups?meta=dmap.itemname,dmap.itemid,dmap.persistentid,daap.songartist,daap.songyear,daap.songtracknumber,com.apple.itunes.cloud-id,daap.songartistid,daap.songalbumid,dmap.persistentid,daap.songtime,daap.songdatereleased,daap.songgenre,dmap.downloadstatus&type=music&group-type=albums&sort=album&include-sort-headers=0&query=('daap.songalbum:*Joji*'+'daap.songalbum!:'+('com.apple.itunes.extended-media-kind:1','com.apple.itunes.extended-media-kind:32'))&session-id=951632340
+    // get query
+    const query = req.query.query;
+    const meta = req.query.meta;
+    const containerid = req.params.containerid;
+    console.log(query);
+    console.log(meta);
+    console.log(containerid);
+
+    // query example : ('dmap.itemname:*Joji*' ('com.apple.itunes.extended-media-kind:1','com.apple.itunes.extended-media-kind:32'))
+    // get queried words (daap.songalbum) into 1 string
+    // ('dmap.itemname:*L*' 'com.apple.itunes.extended-media-kind:2')
+
+    // get media kind as
+    let mediaKinds = []
+    try {
+      mediaKinds = query
+      .match(/com\.apple\.itunes\.extended-media-kind:([0-9]*)/g)
+      .map((item) =>
+        item.replace(/com\.apple\.itunes\.extended-media-kind:/g, "")
+      );
+    } catch (_){}
 
 
+    res.set({
+      Date: new Date().toString(),
+      "Content-Type": "application/x-dmap-tagged",
+      "DAAP-Server": "daap.js/0.0",
+    });
+
+    if (mediaKinds.includes("1") & (containerid == 6969)) {
+      let data = daap_encode({
+        apso: {
+          mstt: 200,
+          muty: 0,
+          mtco: 2,
+          mrco: 2,
+          mlcl: [
+            {
+              mlit: {
+                mikd: 2,
+                asal: "",
+                asar: "",
+                astm: 6306,
+                astn: 0,
+                asyr: 0,
+                miid: 4345,
+                minm: "Cider Audio Track #1",
+                asdb: 0,
+                mcti: 7948,
+                aeHV: 6386529,
+                asaa: "",
+                aeMk: 1,
+                mdst: 56714563,
+                aeCd: 0,
+              },
+            },
+            {
+              mlit: {
+                mikd: 2,
+                asal: "",
+                asar: "",
+                astm: 202135,
+                astn: 0,
+                asyr: 0,
+                miid: 4201,
+                minm: "Cider Audio Track #2",
+                asdb: 0,
+                mcti: 7876,
+                aeHV: 6386529,
+                asaa: "",
+                aeMk: 1,
+                mdst: 56714563,
+                aeCd: 0,
+              },
+            },
+          ],
+          mshl: {
+            mlit: {
+              mshc: 5270899,
+              mshi: 0,
+              mshn: 2,
+            },
+          },
+        },
+      });
+      res.send(data);
+    } else {res.send(
+      daap_encode({
+        apso: {
+          mstt: 200,
+          muty: 0,
+          mtco: 0,
+          mrco: 0}})
+    );}
+  });
+
+  // GET /databases/1/browse/artists?include-sort-headers=1&filter='daap.songartist:*Joji*'+'daap.songartist!:'+('com.apple.itunes.extended-media-kind:1','com.apple.itunes.extended-media-kind:32')&session-id=951632340
 
   app.listen(port, () => {
     console.log(`Example app listening on port ${port}`);
@@ -370,80 +553,91 @@ DACPServer.prototype.startHTTPServer = function () {
 };
 
 function checkIfArrayIsUnique(myArray) {
-    return myArray.length === new Set(myArray).size;
+  return myArray.length === new Set(myArray).size;
 }
 
 function convertToNestedDict(arr) {
-    const result = {};
-  
-    for (let i = 0; i < arr.length; i++) {
-      const key = arr[i][0];
-      let value = arr[i][1];
+  const result = {};
 
-      if (Array.isArray(value)) {
-        if (!checkIfArrayIsUnique(value.map((item) => item[0]))) {
-            for (item in value) {
-                console.log(value[item]);
-                if (result[key] == undefined) {
-                    result[key] = [];
-                }
-                result[key].push(convertToNestedDict([value[item]]));
-            }
-        } else {
-          result[key] = convertToNestedDict(value);
+  for (let i = 0; i < arr.length; i++) {
+    const key = arr[i][0];
+    let value = arr[i][1];
+
+    if (Array.isArray(value)) {
+      if (!checkIfArrayIsUnique(value.map((item) => item[0]))) {
+        for (item in value) {
+          console.log(value[item]);
+          if (result[key] == undefined) {
+            result[key] = [];
+          }
+          result[key].push(convertToNestedDict([value[item]]));
         }
-      } else if (typeof value === "object" && value !== null) {
-        result[key] = convertToNestedDict(Object.entries(value)); // Recursively convert nested objects
       } else {
-        result[key] = value;
+        result[key] = convertToNestedDict(value);
       }
+    } else if (typeof value === "object" && value !== null) {
+      result[key] = convertToNestedDict(Object.entries(value)); // Recursively convert nested objects
+    } else {
+      result[key] = value;
     }
-  
-    return result;
   }
 
-  function convertToNestedArray(obj) {
-    const result = [];
-  
-    for (const key in obj) {
-      const value = obj[key];
-  
-      if (Array.isArray(value)) {
-        if (!checkIfArrayIsUnique(value.map((value) => value[0]))) {
-            let children = [];
-            for (item in value) {
-                children.push(convertToNestedArray(value[item])[0]);
-            }
-            result.push([key, children]);
-        } else
-          result.push([key, convertToNestedArray(value)]);
-      } else if (typeof value === "object" && value !== null) {
-        result.push([key, convertToNestedArray(value)]);
-      } else {
-        result.push([key, value]);
-      }
+  return result;
+}
+
+function convertToNestedArray(obj) {
+  const result = [];
+
+  for (const key in obj) {
+    const value = obj[key];
+
+    if (Array.isArray(value)) {
+      if (!checkIfArrayIsUnique(value.map((value) => value[0]))) {
+        let children = [];
+        for (item in value) {
+          children.push(convertToNestedArray(value[item])[0]);
+        }
+        result.push([key, children]);
+      } else result.push([key, convertToNestedArray(value)]);
+    } else if (typeof value === "object" && value !== null) {
+      result.push([key, convertToNestedArray(value)]);
+    } else {
+      result.push([key, value]);
     }
-  
-    return result;
   }
+
+  return result;
+}
 
 function daap_encode(obj) {
-    let item = convertToNestedArray(obj)[0];
-    if (item.constructor == Buffer) {
-        label = '<binary>';
-        buffer = item;
-      } else {
-        label = daap.tag(item);
-        buffer = new Buffer(daap.encodedLength(item));
-        daap.encode(item, buffer);
-    }
-    return buffer;
+  let item = convertToNestedArray(obj)[0];
+  if (item.constructor == Buffer) {
+    label = "<binary>";
+    buffer = item;
+  } else {
+    label = daap.tag(item);
+    buffer = new Buffer(daap.encodedLength(item));
+    daap.encode(item, buffer);
+  }
+  return buffer;
+}
+
+function daap_encode2(item) {
+  if (item.constructor == Buffer) {
+    label = "<binary>";
+    buffer = item;
+  } else {
+    label = daap.tag(item);
+    buffer = new Buffer(daap.encodedLength(item));
+    daap.encode(item, buffer);
+  }
+  return buffer;
 }
 
 function daap_decode(buffer) {
-    object = daap.decode(buffer);
-    const nestedDict = convertToNestedDict([object]);
-    return nestedDict;
+  object = daap.decode(buffer);
+  const nestedDict = convertToNestedDict([object]);
+  return nestedDict;
 }
 
 module.exports = DACPServer;

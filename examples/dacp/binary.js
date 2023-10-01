@@ -18,7 +18,6 @@ var characterEncoding = exports.characterEncoding = {
   
   var packDate = exports.packDate = function (n, buffer, index) {
     var date;
-  
     if (typeof n == 'string') {
       date = new Date(n);
     } else {
@@ -39,6 +38,16 @@ var characterEncoding = exports.characterEncoding = {
   var packShort = exports.packShort = function (n, buffer, index) {
     //buffer.writeUInt16LE(0xFFFF & n, index);
     return pack(n, 2, buffer, index);
+  };
+
+  var packData = exports.packData = function (n, buffer, index) {
+    //buffer.writeUInt16LE(0xFFFF & n, index);
+    // return pack(n, 2, buffer, index);
+    buffer = buffer || []; // shouldn't this fall back to a new buffer?
+    index = index || 0;
+    n = n || Buffer.from();
+    buffer.write(n, index, encoding = 'hex');
+    return buffer;
   };
   
   exports.packByte = function (n, buffer, index) {
@@ -84,6 +93,11 @@ var characterEncoding = exports.characterEncoding = {
   
   var unpackByte = exports.unpackByte = function (buffer, index) {
     return unpack(buffer, index, 1);
+  };
+
+  var unpackData = exports.unpackData = function (buffer, index, length) {
+    console.log(buffer,index, length)
+    return buffer.slice(index, index+length).toString('hex')
   };
   
   var unpackString = exports.unpackString = function (buffer, index, length, encoding) {
