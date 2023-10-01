@@ -5,12 +5,14 @@ const DeviceDiscovery = require("./device_browser");
 const fetch = require("electron-fetch").default;
 const crypto = require("crypto");
 var daap = require("./dmap.js");
+var CiderRPCCrawler = require("./ciderrpccrawler.js");
 const express = require("express");
 
 function DACPServer() {
   this.availableRemotes = [];
   this.connectedRemotes = [];
   this.browser = new DeviceDiscovery();
+  this.rpc = new CiderRPCCrawler();
 }
 util.inherits(DACPServer, events.EventEmitter);
 
@@ -18,6 +20,7 @@ DACPServer.prototype.start = function () {
   this.browser.scan();
   this.startHTTPServer();
   this.browser.broadcast();
+  this.rpc.start();
 };
 
 DACPServer.prototype.stop = function () {};
@@ -74,6 +77,7 @@ DACPServer.prototype.connect = async function (device, passcode) {
     }
   }
 };
+
 
 DACPServer.prototype.startHTTPServer = function () {
   // express server
@@ -256,24 +260,24 @@ DACPServer.prototype.startHTTPServer = function () {
   app.get("/ctrl-int/1/getspeakers", (req, res) => {
     // console.log("[DACP] getspeaker");
     //http://daap.sourceforge.net/docs/server-info.html
-    // var data = daap_encode({
-    //   casp: {
-    //     mstt: 200,
-    //     mdcl: {
-    //       minm: "Computer",
-    //       msma: 0,
-    //       caia: 1,
-    //       cads: 1,
-    //       cmvo: 51,
-    //       cavd: 1,
-    //       caiv: 1
-    //     },
-    //   },
-    // });
-    var data = Buffer.from(
-      "63617370000000ba6d73747400000004000000c86d64636c00000056636d766f00000004000000646361647300000004000000016d696e6d0000000b4d7920436f6d70757465726361696100000001016361766400000001016361697600000001016d736d610000000800000000000000006d64636c000000486d696e6d00000007426564726f6f6d6361647300000004000000016d736d6100000008000038420b9276c06361636400000009426f6f6b7368656c66636d766f0000000400000019",
-      "hex"
-    );
+    var data = daap_encode({
+      casp: {
+        mstt: 200,
+        mdcl: {
+          minm: "Computer",
+          msma: 0,
+          caia: 1,
+          cads: 1,
+          cmvo: 51,
+          cavd: 1,
+          caiv: 1,
+        },
+      },
+    });
+    // var data = Buffer.from(
+    //   "63617370000000ba6d73747400000004000000c86d64636c00000056636d766f00000004000000646361647300000004000000016d696e6d0000000b4d7920436f6d70757465726361696100000001016361766400000001016361697600000001016d736d610000000800000000000000006d64636c000000486d696e6d00000007426564726f6f6d6361647300000004000000016d736d6100000008000038420b9276c06361636400000009426f6f6b7368656c66636d766f0000000400000019",
+    //   "hex"
+    // );
     res.set({
       Date: new Date().toString(),
       "Content-Type": "application/x-dmap-tagged",
@@ -297,7 +301,57 @@ DACPServer.prototype.startHTTPServer = function () {
     res.send(data);
   });
 
-  app.get("/ctrl-int/1/playstatusupdate", (req, res) => {
+  app.get("/ctrl-int/1/playpause", (req, res) => {
+    this.rpc.playPause();
+    res.set({
+      Date: new Date().toString(),
+      "DAAP-Server": "daap.js/0.0",
+    });
+    res.status(204).send()
+  });
+
+  app.get("/ctrl-int/1/nextitem", (req, res) => {
+    this.rpc.next();
+    res.set({
+      Date: new Date().toString(),
+      "DAAP-Server": "daap.js/0.0",
+    });
+    res.status(204).send()
+  });
+
+  app.get("/ctrl-int/1/previtem", (req, res) => {
+    this.rpc.previous();
+    res.set({
+      Date: new Date().toString(),
+      "DAAP-Server": "daap.js/0.0",
+    });
+    res.status(204).send()
+  });
+
+  app.get('/ctrl-int/1/nowplayingartwork', async (req, res) => { 
+
+    if (this.rpc.nowplayingItem?.artwork?.url)
+    {
+      res.set({
+        Date: new Date().toString(),
+        "Content-Type": "image/png",
+        "DAAP-Server": "daap.js/0.0",
+      });
+      fetch(this.rpc.nowplayingItem?.artwork?.url.replace('{w}', 768).replace('{h}', 768))
+      .then((res) => res.buffer())
+      .then((buffer) => {
+        res.send(buffer)
+      })
+      .catch((err) => {
+        res.status(204).send()
+      });
+    } else {
+      res.status(204).send()
+    }
+  });
+
+
+  app.get("/ctrl-int/1/playstatusupdate", async (req, res) => {
     // console.log("[DACP] playstatusupdate");
     //http://daap.sourceforge.net/docs/server-info.html
     /// cmst --+
@@ -325,11 +379,11 @@ DACPServer.prototype.startHTTPServer = function () {
     // get revision-number
     const rev_number = req.query["revision-number"];
     if (rev_number == 10) {
-      console.log("huh");
       return;
     }
+    let data = Buffer.alloc(0);
 
-    var data = daap_encode2([
+    data = daap_encode2([
       "cmst",
       [
         ["mstt", 200],
@@ -349,6 +403,47 @@ DACPServer.prototype.startHTTPServer = function () {
       ],
     ]);
 
+    // try {
+      if (this.rpc.nowplayingItem != null) {
+        data = daap_encode2([
+          "cmst",
+          [
+            ["mstt", 200],
+            ["cmsr", 60],
+            ["caps", this.rpc.nowplayingItem.status == "playing" ? 4 : 3],
+            ["cash", 0],
+            ["carp", 0],
+            ["cafs", 0],
+            ["cavs", 0],
+            ["cavc", 1],
+            ["caas", 2],
+            ["caar", 6],
+            ["cafe", 0],
+            ["cave", 0],
+            ["canp", "0000004800000000000000000000115b"],
+            ["cann", this.rpc.nowplayingItem?.name ?? ""],
+            ["cana", this.rpc.nowplayingItem?.artistName ?? ""],
+            ["canl", this.rpc.nowplayingItem?.albumName ?? ""],
+            ["cang", this.rpc.nowplayingItem?.genreNames[0] ?? "Pop"],
+            ["asai", "9110987889284f7d"],
+            ["cmmk", 1],
+            ["aeGs", 1],
+            ["ceGS", 1],
+            ["casa", 3],
+            ["aels", 0],
+            ["aelb", 0],
+            ["astm", this.rpc.nowplayingItem.durationInMillis ?? 0],
+            ["casc", 1],
+            ["caks", 6],
+            ["cant", Math.round((this.rpc.nowplayingItem.durationInMillis ?? 0) - (this.rpc.nowplayingItem.remainingTime ?? 0))],
+            ["cast",this.rpc.nowplayingItem.durationInMillis ?? 0],
+            ["casu", 1],
+            ["ceQu", 0],
+          ],
+        ]);
+      }
+    // } catch (_) {}
+
     res.set({
       Date: new Date().toString(),
       "Content-Type": "application/x-dmap-tagged",
@@ -362,9 +457,6 @@ DACPServer.prototype.startHTTPServer = function () {
     // get query
     const query = req.query.query;
     const meta = req.query.meta;
-    console.log(query);
-    console.log(meta);
-
     // query example : ('daap.songalbum:*Love*' 'daap.songalbum:*me*' 'daap.songalbum:*like*' 'com.apple.itunes.extended-media-kind:8' 'daap.songalbum:*you*' 'daap.songalbum:*do*')
     // get queried words (daap.songalbum) into 1 string
 
@@ -376,7 +468,6 @@ DACPServer.prototype.startHTTPServer = function () {
           item.replace(/daap\.songalbum:\*/g, "").replace(/\*/g, "")
         )
         .join(" ");
-      console.log(queryWords);
     } catch (_) {}
 
     // get media kind as
@@ -385,7 +476,6 @@ DACPServer.prototype.startHTTPServer = function () {
       .map((item) =>
         item.replace(/com\.apple\.itunes\.extended-media-kind:/g, "")
       );
-    console.log(mediaKinds);
 
     var data = daap_encode({
       agal: {
@@ -404,7 +494,7 @@ DACPServer.prototype.startHTTPServer = function () {
             asgn: "Hip-Hop/Rap",
             astm: 107467,
             asdr: Date("2016-05-05T12:00:00.000Z"),
-            asai: 'a0d34e8b82616ae8',
+            asai: "a0d34e8b82616ae8",
             mgds: 3,
             mimc: 1,
           },
@@ -421,13 +511,15 @@ DACPServer.prototype.startHTTPServer = function () {
     if (mediaKinds.includes("1")) {
       res.send(data);
     } else {
-       res.send(
+      res.send(
         daap_encode({
           agal: {
             mstt: 200,
             muty: 0,
             mtco: 0,
-            mrco: 0}})
+            mrco: 0,
+          },
+        })
       );
     }
   });
@@ -436,8 +528,7 @@ DACPServer.prototype.startHTTPServer = function () {
 
   app.get("/databases/1/:type/:itemid/extra_data/artwork", (req, res) => {
     const query = req.query.itemid;
-    fake_image =
-      "";
+    fake_image = "";
 
     res.set({
       Date: new Date().toString(),
@@ -453,24 +544,23 @@ DACPServer.prototype.startHTTPServer = function () {
     const query = req.query.query;
     const meta = req.query.meta;
     const containerid = req.params.containerid;
-    console.log(query);
-    console.log(meta);
-    console.log(containerid);
+    // console.log(query);
+    // console.log(meta);
+    // console.log(containerid);
 
     // query example : ('dmap.itemname:*Joji*' ('com.apple.itunes.extended-media-kind:1','com.apple.itunes.extended-media-kind:32'))
     // get queried words (daap.songalbum) into 1 string
     // ('dmap.itemname:*L*' 'com.apple.itunes.extended-media-kind:2')
 
     // get media kind as
-    let mediaKinds = []
+    let mediaKinds = [];
     try {
       mediaKinds = query
-      .match(/com\.apple\.itunes\.extended-media-kind:([0-9]*)/g)
-      .map((item) =>
-        item.replace(/com\.apple\.itunes\.extended-media-kind:/g, "")
-      );
-    } catch (_){}
-
+        .match(/com\.apple\.itunes\.extended-media-kind:([0-9]*)/g)
+        .map((item) =>
+          item.replace(/com\.apple\.itunes\.extended-media-kind:/g, "")
+        );
+    } catch (_) {}
 
     res.set({
       Date: new Date().toString(),
@@ -535,14 +625,18 @@ DACPServer.prototype.startHTTPServer = function () {
         },
       });
       res.send(data);
-    } else {res.send(
-      daap_encode({
-        apso: {
-          mstt: 200,
-          muty: 0,
-          mtco: 0,
-          mrco: 0}})
-    );}
+    } else {
+      res.send(
+        daap_encode({
+          apso: {
+            mstt: 200,
+            muty: 0,
+            mtco: 0,
+            mrco: 0,
+          },
+        })
+      );
+    }
   });
 
   // GET /databases/1/browse/artists?include-sort-headers=1&filter='daap.songartist:*Joji*'+'daap.songartist!:'+('com.apple.itunes.extended-media-kind:1','com.apple.itunes.extended-media-kind:32')&session-id=951632340
@@ -566,7 +660,6 @@ function convertToNestedDict(arr) {
     if (Array.isArray(value)) {
       if (!checkIfArrayIsUnique(value.map((item) => item[0]))) {
         for (item in value) {
-          console.log(value[item]);
           if (result[key] == undefined) {
             result[key] = [];
           }
