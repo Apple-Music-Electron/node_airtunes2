@@ -7,12 +7,44 @@ const crypto = require("crypto");
 var daap = require("./dmap.js");
 var CiderRPCCrawler = require("./ciderrpccrawler.js");
 const express = require("express");
+const contentCodes = require("./contentCodes.js");
 
 function DACPServer() {
   this.availableRemotes = [];
   this.connectedRemotes = [];
   this.browser = new DeviceDiscovery();
   this.rpc = new CiderRPCCrawler();
+  this.playstatuspending = false;
+  this.previousplaystatus = null;
+  this.playstatusInterval = null;
+  this.cache = {
+    caps: 4,
+    cmvo: 50,
+    cash: 0,
+    caas: 2,
+    carp: 0,
+    cafs: 0,
+    cavs: 0,
+    cavc: 1,
+    caar: 6,
+    cafe: 0,
+    cave: 0,
+    canp: "00002e64000000000000000000000000",
+    cann: "",
+    cana: "",
+    canl: "",
+    cang: "Pop",
+    // asai: "9110987889284f7d",
+    cmmk: 1,
+    casa: 1,
+    aels: 0,
+    aelb: 0,
+    astm: 0,
+    casc: 1,
+    caks: 6,
+    cant: 0,
+    cast: 0,
+  };
 }
 util.inherits(DACPServer, events.EventEmitter);
 
@@ -21,6 +53,60 @@ DACPServer.prototype.start = function () {
   this.startHTTPServer();
   this.browser.broadcast();
   this.rpc.start();
+
+  this.rpc.on("nowplayingItem", (item) => {
+    let data = [
+      ["caps", this.rpc.nowplayingItem.status == "playing" ? 4 : 3],
+      ["cann", this.rpc.nowplayingItem?.name ?? ""],
+      ["cana", this.rpc.nowplayingItem?.artistName ?? ""],
+      ["canl", this.rpc.nowplayingItem?.albumName ?? ""],
+      [
+        "cang",
+        this.rpc.nowplayingItem?.genreNames
+          ? this.rpc.nowplayingItem?.genreNames[0] ?? "Pop"
+          : "",
+      ],
+      ["astm", this.rpc.nowplayingItem.durationInMillis ?? 0],
+      [
+        "cant",
+        Math.round(
+          (this.rpc.nowplayingItem.remainingTime ?? 0) * 1000
+        ),
+      ],
+      ["cast", this.rpc.nowplayingItem.durationInMillis ?? 0],
+    ]
+
+    for (let item of data) {
+      this.cache[item[0]] = item[1];
+    }
+
+    // console.log(this.rpc.nowplayingItem.durationInMillis, this.rpc.nowplayingItem.currentPlaybackTime)
+
+    // compare to previousplaystatus
+    if (this.previousplaystatus != null && this.previousplaystatus[1] != null){
+      // check if either caps, cann, cana or canl changed compared to this.cache
+
+
+      let old_dataobj = {}
+      for (let item of this.previousplaystatus[1]){
+        old_dataobj[item[0]] = item[1]
+      }
+
+      for (let item of ["caps", "cann", "cana", "canl", "cant", "cmvo"]) {
+        // convert df to object
+        if (this.cache[item] != old_dataobj[item]){
+          this.playstatuspending = true;
+          break;
+        }
+      }
+    } else {
+      this.playstatuspending = true;
+    }    
+  });
+
+  this.rpc.on("volume", (vol) => {
+    this.cache["cmvo"] = this.rpc.volume;
+  });
 };
 
 DACPServer.prototype.stop = function () {};
@@ -77,7 +163,6 @@ DACPServer.prototype.connect = async function (device, passcode) {
     }
   }
 };
-
 
 DACPServer.prototype.startHTTPServer = function () {
   // express server
@@ -268,7 +353,7 @@ DACPServer.prototype.startHTTPServer = function () {
           msma: 0,
           caia: 1,
           cads: 1,
-          cmvo: 51,
+          cmvo: this.rpc.volume ?? 50,
           cavd: 1,
           caiv: 1,
         },
@@ -287,11 +372,66 @@ DACPServer.prototype.startHTTPServer = function () {
   });
 
   app.get("/ctrl-int/1/getproperty", (req, res) => {
-    // console.log("[DACP] property");
+   // console.log("[DACP] property");
 
-    var data = daap_encode({
-      cmgt: { mstt: 200, cmvo: 51 },
-    });
+    // get properties
+    const properties = (req.query?.properties ?? "").split(",");
+    // console.log(properties);
+    let daap_frame = [];
+    for (property of properties) {
+      switch (property) {
+        case "dacp.nowplaying":
+          if (this.rpc.nowplayingItem != null) {
+            let buffer = [
+              ["canp", "0000004800000000000000000000115b"],
+              ["cann", this.rpc.nowplayingItem?.name ?? ""],
+              ["cana", this.rpc.nowplayingItem?.artistName ?? ""],
+              ["canl", this.rpc.nowplayingItem?.albumName ?? ""],
+              [
+                "cang",
+                this.rpc.nowplayingItem?.genreNames
+                  ? this.rpc.nowplayingItem?.genreNames[0] ?? "Pop"
+                  : "",
+              ],
+              // ["asai", "9110987889284f7d"],
+            ];
+            daap_frame.push(...buffer);
+            for (let item of buffer) {
+              this.cache[item[0]] = item[1];
+            }
+          }
+          break;
+        case "dacp.playingtime":
+          if (this.rpc.nowplayingItem != null) {
+            let buffer = [
+              ["astm", this.rpc.nowplayingItem.durationInMillis ?? 0],
+              ["casc", 1],
+              ["caks", 6],
+              [
+                "cant",
+                Math.round(
+                  (this.rpc.nowplayingItem.remainingTime ?? 0) * 1000
+                ),
+              ],
+              ["cast", this.rpc.nowplayingItem.durationInMillis ?? 0],
+            ];
+            daap_frame.push(...buffer);
+            for (let item of buffer) {
+              this.cache[item[0]] = item[1];
+            }
+          }
+          break;
+        default:
+          let contentCode = contentCodes.getIdentifier(property);
+          if (contentCode != null) {
+            if (this.cache[property] != null) {
+              daap_frame.push([contentCode, this.cache[property]]);
+            }
+          }
+          break;
+      }
+    }
+    var data = daap_encode2(["cmst", [["mstt", 200], ...daap_frame]]);
 
     res.set({
       Date: new Date().toString(),
@@ -301,13 +441,33 @@ DACPServer.prototype.startHTTPServer = function () {
     res.send(data);
   });
 
+  app.get("/ctrl-int/1/setproperty", (req, res) => {
+    const vol = (req.query["dmcp.volume"] ?? "");
+    this.rpc.setvol(vol);
+    this.cache["cmvo"] = this.rpc.volume;
+    res.set({
+      Date: new Date().toString(),
+      "DAAP-Server": "daap.js/0.0",
+    });
+    res.status(204).send();
+  })
+
   app.get("/ctrl-int/1/playpause", (req, res) => {
     this.rpc.playPause();
     res.set({
       Date: new Date().toString(),
       "DAAP-Server": "daap.js/0.0",
     });
-    res.status(204).send()
+    res.status(204).send();
+  });
+
+  app.get("/ctrl-int/1/pause", (req, res) => {
+    this.rpc.pause();
+    res.set({
+      Date: new Date().toString(),
+      "DAAP-Server": "daap.js/0.0",
+    });
+    res.status(204).send();
   });
 
   app.get("/ctrl-int/1/nextitem", (req, res) => {
@@ -316,7 +476,7 @@ DACPServer.prototype.startHTTPServer = function () {
       Date: new Date().toString(),
       "DAAP-Server": "daap.js/0.0",
     });
-    res.status(204).send()
+    res.status(204).send();
   });
 
   app.get("/ctrl-int/1/previtem", (req, res) => {
@@ -325,31 +485,36 @@ DACPServer.prototype.startHTTPServer = function () {
       Date: new Date().toString(),
       "DAAP-Server": "daap.js/0.0",
     });
-    res.status(204).send()
+    res.status(204).send();
   });
 
-  app.get('/ctrl-int/1/nowplayingartwork', async (req, res) => { 
-
-    if (this.rpc.nowplayingItem?.artwork?.url)
-    {
+  app.get("/ctrl-int/1/nowplayingartwork", async (req, res) => {
+    if (this.rpc.nowplayingItem?.artwork?.url) {
+      let extension  = this.rpc.nowplayingItem.artwork.url.split(".").pop();
       res.set({
         Date: new Date().toString(),
-        "Content-Type": "image/png",
+        "Content-Type": extension == "jpg" ? "image/jpeg" :"image/png",
         "DAAP-Server": "daap.js/0.0",
       });
-      fetch(this.rpc.nowplayingItem?.artwork?.url.replace('{w}', 768).replace('{h}', 768))
-      .then((res) => res.buffer())
-      .then((buffer) => {
-        res.send(buffer)
-      })
-      .catch((err) => {
-        res.status(204).send()
-      });
+      console.log(        this.rpc.nowplayingItem?.artwork?.url
+        .replace("{w}", 768)
+        .replace("{h}", 768))
+      fetch(
+        this.rpc.nowplayingItem?.artwork?.url
+          .replace("{w}", 768)
+          .replace("{h}", 768)
+      )
+        .then((res) => res.buffer())
+        .then((buffer) => {
+          res.send(buffer);
+        })
+        .catch((err) => {
+          res.status(204).send();
+        });
     } else {
-      res.status(204).send()
+      res.status(204).send();
     }
   });
-
 
   app.get("/ctrl-int/1/playstatusupdate", async (req, res) => {
     // console.log("[DACP] playstatusupdate");
@@ -378,12 +543,11 @@ DACPServer.prototype.startHTTPServer = function () {
 
     // get revision-number
     const rev_number = req.query["revision-number"];
-    if (rev_number == 10) {
-      return;
-    }
+    // if (rev_number != 1) {
+    //   return;
+    // }
     let data = Buffer.alloc(0);
-
-    data = daap_encode2([
+    let dataframe = [
       "cmst",
       [
         ["mstt", 200],
@@ -401,55 +565,131 @@ DACPServer.prototype.startHTTPServer = function () {
         ["casu", 0],
         ["ceQu", 0],
       ],
-    ]);
+    ];
+
+    data = daap_encode2(dataframe);
 
     // try {
-      if (this.rpc.nowplayingItem != null) {
-        data = daap_encode2([
-          "cmst",
+    if (this.rpc.nowplayingItem != null) {
+      dataframe = [
+        "cmst",
+        [
+          ["mstt", 200],
+          ["cmsr", 60],
+          ["caps", this.rpc.nowplayingItem.status == "playing" ? 4 : 3],
+          ["cash", 0],
+          ["carp", 0],
+          ["cafs", 0],
+          ["cavs", 0],
+          ["cavc", 1],
+          ["caas", 2],
+          ["caar", 6],
+          ["cafe", 0],
+          ["cave", 0],
+          ["canp", "0000004800000000000000000000115b"],
+          ["cann", this.rpc.nowplayingItem?.name ?? ""],
+          ["cana", this.rpc.nowplayingItem?.artistName ?? ""],
+          ["canl", this.rpc.nowplayingItem?.albumName ?? ""],
           [
-            ["mstt", 200],
-            ["cmsr", 60],
-            ["caps", this.rpc.nowplayingItem.status == "playing" ? 4 : 3],
-            ["cash", 0],
-            ["carp", 0],
-            ["cafs", 0],
-            ["cavs", 0],
-            ["cavc", 1],
-            ["caas", 2],
-            ["caar", 6],
-            ["cafe", 0],
-            ["cave", 0],
-            ["canp", "0000004800000000000000000000115b"],
-            ["cann", this.rpc.nowplayingItem?.name ?? ""],
-            ["cana", this.rpc.nowplayingItem?.artistName ?? ""],
-            ["canl", this.rpc.nowplayingItem?.albumName ?? ""],
-            ["cang", this.rpc.nowplayingItem?.genreNames[0] ?? "Pop"],
-            ["asai", "9110987889284f7d"],
-            ["cmmk", 1],
-            ["aeGs", 1],
-            ["ceGS", 1],
-            ["casa", 3],
-            ["aels", 0],
-            ["aelb", 0],
-            ["astm", this.rpc.nowplayingItem.durationInMillis ?? 0],
-            ["casc", 1],
-            ["caks", 6],
-            ["cant", Math.round((this.rpc.nowplayingItem.durationInMillis ?? 0) - (this.rpc.nowplayingItem.remainingTime ?? 0))],
-            ["cast",this.rpc.nowplayingItem.durationInMillis ?? 0],
-            ["casu", 1],
-            ["ceQu", 0],
+            "cang",
+            this.rpc.nowplayingItem?.genreNames
+              ? this.rpc.nowplayingItem?.genreNames[0] ?? "Pop"
+              : "",
           ],
-        ]);
-      }
-    // } catch (_) {}
+          // ["asai", "9110987889284f7d"],
+          ["cmmk", 1],
+          ["aeGs", 1],
+          ["ceGS", 1],
+          ["casa", 3],
+          ["aels", 0],
+          ["aelb", 0],
+          ["astm", this.rpc.nowplayingItem.durationInMillis ?? 0],
+          ["casc", 1],
+          ["caks", 6],
+          [
+            "cant",
+            Math.round(
+              (this.rpc.nowplayingItem.remainingTime ?? 0) * 1000
+            ),
+          ],
+          ["cast", this.rpc.nowplayingItem.durationInMillis ?? 0],
+          ["casu", 1],
+          ["ceQu", 0],
+        ],
+      ];
+      data = daap_encode2(dataframe);
+    }
 
-    res.set({
-      Date: new Date().toString(),
-      "Content-Type": "application/x-dmap-tagged",
-      "DAAP-Server": "daap.js/0.0",
-    });
-    res.send(data);
+    let old_data = this.previousplaystatus ? this.previousplaystatus[1] : [];
+    
+
+    for (let item of dataframe[1]) {
+      this.cache[item[0]] = item[1];
+    }
+
+    // check if either caps, cann, cana or canl changed
+    let changed = false;
+    let dfobj = {}
+    let old_dataobj = {}
+    for (let item of dataframe[1]){
+      dfobj[item[0]] = item[1]
+    }
+    for (let item of old_data){
+      old_dataobj[item[0]] = item[1]
+    }
+    for (let item of ["caps", "cann", "cana", "canl", "cant", "cmvo"]) {
+      // convert df to object
+      if (old_dataobj[item] != dfobj[item]){
+        changed = true;
+        break;
+      }
+    }
+    
+    if (changed) {
+      res.set({
+        Date: new Date().toString(),
+        "Content-Type": "application/x-dmap-tagged",
+        "DAAP-Server": "daap.js/0.0",
+      });
+      res.send(data);
+      this.previousplaystatus = dataframe;
+    } else {
+      // create interval to check if this.playstatuspending is true
+      // if true, send data
+      // else send nothing
+      if (this.playstatusInterval != null){
+        clearInterval(this.playstatusInterval);
+      }
+
+      this.playstatusInterval = setInterval(() => {
+        if (this.playstatuspending == true) {
+          this.playstatuspending = false;
+          clearInterval(this);
+          try {
+          res.set({
+            Date: new Date().toString(),
+            "Content-Type": "application/x-dmap-tagged",
+            "DAAP-Server": "daap.js/0.0",
+          });
+          let inside = []
+          // for each key in this.cache
+          for (let key in this.cache) {
+              // add to inside
+              inside.push([key, this.cache[key]])
+          }
+          
+          let array = ['cmst', inside]
+          res.send(daap_encode2(
+            array
+          ));
+          this.previousplaystatus = array;
+          } catch (err) {
+            // console.log(err)
+          }
+        }
+        }, 500);
+    }
+
   });
 
   app.get("/databases/1/groups", (req, res) => {

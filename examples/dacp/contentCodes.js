@@ -45,10 +45,21 @@ exports.lookUp = function (tag) {
   return contentCodes[tag];
 };
 
+exports.getIdentifier = function(param) {
+  for (const key in contentCodes) {
+    if (contentCodes[key].name === param) {
+      return key;
+    }
+  }
+
+  // Return a default value or handle the case when the parameter doesn't match
+  return null;
+}
+
 var contentCodes = {};
 
 // ------------------------------  DAAP ATTRIBUTES -----------------------------
-contentCodes["abal"] = { type: type.list, name: "daap.browsealbumlistung" };
+contentCodes["abal"] = { type: type.list, name: "daap.browsealbumlisting" };
 contentCodes["abar"] = { type: type.list, name: "daap.browseartistlisting" };
 contentCodes["abcp"] = { type: type.list, name: "daap.browsecomposerlisting" };
 contentCodes["abgn"] = { type: type.list, name: "daap.browsegenrelisting" };
@@ -372,7 +383,7 @@ contentCodes["aeCd"] = { type: type.int, name: "com.apple.itunes.cloud-id" };
 // contentCodes["aeGR"] = { type: type.int, name: "com.apple.itunes.gapless-resy" };
 contentCodes["aeGs"] = { type: type.byte, name: "com.apple.itunes.can-be-genius-seed" };
 // contentCodes["aeGU"] = { type: type.int, name: "com.apple.itunes.gapless-dur" };
-// contentCodes["aeHC"] = { type: type.int, name: "com.apple.itunes.has-chapter-data" };
+contentCodes["aeHC"] = { type: type.int, name: "com.apple.itunes.has-chapter-data" };
 // contentCodes["aeHD"] = { type: type.int, name: "com.apple.itunes.is-hd-video" };
 contentCodes["aeHV"] = { type: type.int, name: "com.apple.itunes.has-video" };
 // contentCodes["aeIM"] = { type: type.int, name: "com.apple.itunes.unknown-IM" };
@@ -403,7 +414,7 @@ contentCodes["aelb"] = { type: type.byte, name: "com.apple.itunes.lb?" };
 // contentCodes["aeSE"] = { type: type.int, name: "com.apple.itunes.store-pers-id" };
 // contentCodes["aeSF"] = { type: type.int, name: "com.apple.itunes.itms-storefrontid" };
 // contentCodes["aeSG"] = { type: type.int, name: "com.apple.itunes.saved-genius" };
-// contentCodes["aeSI"] = { type: type.int, name: "com.apple.itunes.itms-songid" };
+contentCodes["aeSI"] = { type: type.int, name: "com.apple.itunes.itms-songid" };
 // contentCodes["aeSL"] = { type: type.int, name: "com.apple.itunes.unknown-SL" };
 // contentCodes["aeSN"] = { type: type.string, name: "com.apple.itunes.series-name" };
 // contentCodes["aeSP"] = { type: type.int, name: "com.apple.itunes.smart-playlist" };
@@ -496,8 +507,8 @@ contentCodes["asai"] = { type: type.data, name: "daap.songalbumid" };
 // contentCodes["asyr"] = { type: type.int, name: "daap.songyear" };
 // contentCodes["ated"] = { type: type.int, name: "daap.supportsextradata" };
 // contentCodes["avdb"] = { type: type.list, name: "daap.serverdatabases" };
-// contentCodes["caar"] = { type: type.int, name: "dacp.availablerepeatstates" };
-// contentCodes["caas"] = { type: type.int, name: "dacp.availableshufflestates" };
+contentCodes["caar"] = { type: type.int, name: "dacp.availablerepeatstates" };
+contentCodes["caas"] = { type: type.int, name: "dacp.availableshufflestates" };
 // contentCodes["caci"] = { type: type.list, name: "dacp.controlint" };
 contentCodes["cads"] = { type: type.int, name: "unknown-ds.cads" };
 contentCodes["cacd"] = { type: type.string, name: "unknown-ds.cacd" };
@@ -515,8 +526,6 @@ contentCodes["canp"] = { type: type.data, name: "dacp.nowplayingids" };
 contentCodes["cant"] = { type: type.int, name: "dacp.nowplayingtime" };
 // contentCodes["caov"] = { type: type.int, name: "unknown.ov.caov" };
 // contentCodes["capr"] = { type: type.version, name: "dacp.protocolversion" };
-// contentCodes["caps"] = { type: type.int, name: "dacp.playerstate" };
-// contentCodes["carp"] = { type: type.int, name: "dacp.repeatstate" };
 contentCodes["casa"] = { type: type.int, name: "com.apple.itunes.unknown-sa" };
 contentCodes["casc"] = { type: type.byte, name: "unknown.ss.casc" };
 // contentCodes["cash"] = { type: type.int, name: "dacp.shufflestate" };
@@ -525,8 +534,8 @@ contentCodes["casc"] = { type: type.byte, name: "unknown.ss.casc" };
 contentCodes["cast"] = { type: type.int, name: "dacp.songtime" };
 // contentCodes["cavc"] = { type: type.int, name: "dacp.volumecontrollable" };
 contentCodes["cavd"] = { type: type.byte, name: "com.apple.itunes.unknown-vd" };
-// contentCodes["cave"] = { type: type.int, name: "dacp.visualizerenabled" };
-// contentCodes["cavs"] = { type: type.int, name: "dacp.visualizer" };
+contentCodes["cave"] = { type: type.byte, name: "dacp.visualizerenabled" };
+contentCodes["cavs"] = { type: type.byte, name: "dacp.visualizer" };
 contentCodes["ceGS"] = { type: type.byte, name: "com.apple.itunes.genius-selectable" };
 // contentCodes["ceJC"] = { type: type.int, name: "com.apple.itunes.jukebox-client-vote" };
 // contentCodes["ceJI"] = { type: type.int, name: "com.apple.itunes.jukebox-current" };
@@ -646,3 +655,5 @@ contentCodes["msto"] = { type: type.int, name: "dmap.utcoffset" };
 // contentCodes["prat"] = { type: type.int, name: "dpap.imagerating" };
 // contentCodes["pret"] = { type: type.list, name: "dpap.retryids" };
 // contentCodes["pwth"] = { type: type.int, name: "dpap.imagepixelwidth" };
+
+exports.contentCodes = contentCodes;
