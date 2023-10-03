@@ -91,5 +91,13 @@ CiderRPCCrawler.prototype.getvol = async function () {
     }
 }
 
+CiderRPCCrawler.prototype.seekTo = async function (time) {
+    try {
+        let ciderRPCReq1 = await fetch(
+            "http://localhost:10769/seekto/" + Math.round(time /1000)
+        );
+    } catch (_){}
+}
+
 
 module.exports = CiderRPCCrawler;
