@@ -69,6 +69,7 @@
     "elliptic": "^6.4.0",
     "express": "^4.18.2",
     "fast-srp-hap": "^2.0.4",
+    "get-port": "5.1.1",
     "js-crypto-aes": "^1.0.4",
     "js-sha1": "^0.4.1",
     "lodash": "^4.17.4",
