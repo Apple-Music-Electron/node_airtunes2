@@ -89,5 +89,5 @@
   "bugs": {
     "url": "https://github.com/ciderapp/node_airtunes2/issues"
   },
-  "packageManager": "yarn@4.1.1"
+  "packageManager": "yarn@4.1.0"
 }
