@@ -22,15 +22,19 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "yarn"
 
+      - name: Add DiskUtils (macOS)
+        if: ${{ matrix.os == 'macos-latest' }}
+        run: sudo -H pip install setuptools
+
       - name: Install Dependencies
         run: yarn install
 
         # npm config set msvs_version 2022
 
-      - name: Build binaries
+      - name: Build tar files
         run: yarn build
 
-      - name: Build Exe
+      - name: Build Exe (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: yarn exe
 
