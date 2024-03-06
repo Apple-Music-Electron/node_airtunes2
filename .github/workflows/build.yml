@@ -39,9 +39,16 @@ jobs:
         run: yarn exe
 
       - name: Upload release assets
-        uses: softprops/action-gh-release@v1
+        uses: svenstaro/upload-release-action@v2
         with:
-          tag_name: "v2.4.9"
-          files: |
-            prebuilds/*.tar.gz
-            ./airtunes2.exe
+          tag: "v2.4.9"
+          overwrite: true
+          file: prebuilds/*.tar.gz
+
+      - name: Upload executable
+        if: ${{ matrix.os == 'windows-latest' }}
+        uses: svenstaro/upload-release-action@v2
+        with:
+          tag: "v2.4.9"
+          overwrite: true
+          file: ./airtunes2.exe
