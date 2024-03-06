@@ -44,6 +44,7 @@ jobs:
           tag: "v2.4.9"
           overwrite: true
           file: prebuilds/*.tar.gz
+          file_glob: true
 
       - name: Upload executable
         if: ${{ matrix.os == 'windows-latest' }}
