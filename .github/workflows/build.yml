@@ -1,0 +1,39 @@
+name: Build
+
+on: push
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          cache: "yarn"
+
+      - uses: actions/checkout@v4
+
+      - name: Install Dependencies
+        run: yarn install
+
+        # npm config set msvs_version 2022
+
+      - name: Build binaries
+        run: yarn build
+
+      - name: Build Exe
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: yarn exe
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            prebuilds/*.tar.gz
+            ./airtunes2.exe
