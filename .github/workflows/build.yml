@@ -2,6 +2,9 @@ name: Build
 
 on: push
 
+permissions:
+  contents: write
+
 jobs:
   build:
     strategy:
@@ -34,6 +37,7 @@ jobs:
       - name: Upload release assets
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: "v2.4.9"
           files: |
             prebuilds/*.tar.gz
             ./airtunes2.exe
