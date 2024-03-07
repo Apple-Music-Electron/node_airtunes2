@@ -125,10 +125,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@noble/ed25519@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@noble/ed25519@npm:2.0.0"
-  checksum: 10c0/877f5c278f93f302f616651efb6dc2c96d3d725eaee00d2b2ebf42414bed448e2dcb20dd566f8926787655d667ab02b9bf1aabb60a5795125169a600d2f5743e
+"@noble/ed25519@npm:^1.7.3":
+  version: 1.7.3
+  resolution: "@noble/ed25519@npm:1.7.3"
+  checksum: 10c0/dc162c3be5ae5a3cc0e6aff8209c8d175f24bba22f2b473aa849e102471193c83664b06f0ba2b5e01e9aa1a67a44daf313f478adb9f38768408a8bcad6145a48
   languageName: node
   linkType: hard
 
@@ -415,7 +415,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "airtunes2@workspace:."
   dependencies:
-    "@noble/ed25519": "npm:^2.0.0"
+    "@noble/ed25519": "npm:^1.7.3"
     "@yao-pkg/pkg": "npm:^5.11.4"
     arraybuffer-to-string: "npm:^1.0.2"
     async: "npm:^3.2.5"
