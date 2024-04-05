@@ -57,7 +57,7 @@
     "@yao-pkg/pkg": "^5.11.4",
     "arraybuffer-to-string": "^1.0.2",
     "async": "^3.2.5",
-    "axlsign": "ciderapp/curve25519-js.git",
+    "axlsign": "ciderapp/curve25519-js",
     "big-integer": "^1.6.52",
     "castv2-client": "^1.2.0",
     "chacha-js": "ciderapp/chacha20poly1305",
