@@ -419,7 +419,7 @@ __metadata:
     "@yao-pkg/pkg": "npm:^5.11.4"
     arraybuffer-to-string: "npm:^1.0.2"
     async: "npm:^3.2.5"
-    axlsign: ciderapp/curve25519-js.git
+    axlsign: ciderapp/curve25519-js
     big-integer: "npm:^1.6.52"
     castv2-client: "npm:^1.2.0"
     chacha-js: ciderapp/chacha20poly1305
@@ -632,7 +632,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-axlsign@ciderapp/curve25519-js.git:
+axlsign@ciderapp/curve25519-js:
   version: 1.0.0
   resolution: "axlsign@https://github.com/ciderapp/curve25519-js.git#commit=cae68782564b83ffa1c7c757e40a3944cb140290"
   checksum: 10c0/d3fe5b815e1c8e8f007d0b0e944d571d01b085963d44cc8746c4113efd49c92d65f6f438cc4fdf577e918b94665dbfbf66b262d08166f901bbf65671b69bf772
