@@ -20,9 +20,9 @@
   },
   "scripts": {
     "build": "run-script-os",
-    "build:win32": "prebuild --platform win32 -r electron -t 29.1.0",
-    "build:linux": "prebuild --platform linux -r electron -t 29.1.0",
-    "build:darwin": "prebuild --platform darwin -r electron -t 29.1.0 && prebuild --platform darwin -a arm64 -r electron -t 29.1.0",
+    "build:win32": "prebuild --platform win32 -r electron -t 30.0.4",
+    "build:linux": "prebuild --platform linux -r electron -t 30.0.4",
+    "build:darwin": "prebuild --platform darwin -r electron -t 30.0.4 && prebuild --platform darwin -a arm64 -r electron -t 30.0.4",
     "prebuild-install": "prebuild-install || (npm run rebuild || (true || VER>NUL))",
     "rebuild": "node-gyp configure build",
     "exe": "pkg --compress Brotli .",
