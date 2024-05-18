@@ -25,6 +25,7 @@ jobs:
       - name: Add DiskUtils (macOS)
         if: ${{ matrix.os == 'macos-latest' }}
         run: sudo -H pip install setuptools
+        # python3 -m pip install packaging
 
       - name: Install Dependencies
         run: yarn install

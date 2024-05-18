@@ -70,7 +70,7 @@
     "js-sha1": "^0.7.0",
     "lodash": "^4.17.21",
     "mdns-js": "ciderapp/node-mdns-js",
-    "node-gyp": "^10.0.1",
+    "node-gyp": "^10.1.0",
     "parse-raw-http": "0.0.1",
     "prebuild-install": "ciderapp/prebuild-install",
     "python-struct": "^1.1.3",
