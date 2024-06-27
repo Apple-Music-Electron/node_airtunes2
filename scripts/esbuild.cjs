@@ -1,14 +1,22 @@
 // @ts-check
 
 async function main() {
+
+  const excludedFromBundle = [
+    'castv2-client',
+    'castv2',
+  ]
+
   await require("esbuild").build({
     entryPoints: ["./airplay-worker.js"],
     bundle: true,
     platform: "node",
     outdir: "dist",
-    external: ["./build"],
+    external: ["./build", ...excludedFromBundle],
+    treeShaking: false,
     loader: {
       ".node": "file",
+      ".proto": "file",
     },
     // minify: true,
     // minifyIdentifiers: true,
@@ -20,9 +28,12 @@ async function main() {
     bundle: true,
     platform: "node",
     outdir: "dist",
-    external: ["./build"],
+    external: ["./build", ...excludedFromBundle],
+    treeShaking: false,
+
     loader: {
       ".node": "file",
+      ".proto": "file",
     },
     sourcemap: true,
 
