@@ -27,7 +27,8 @@
     "rebuild": "node-gyp configure build",
     "exe": "pkg --compress Brotli .",
     "exefast": "pkg .",
-    "vaportest": "node examples\\play_radio.js --host 192.168.100.12 --port 7000  --debug true --mode 1 --airplay2 1"
+    "vaportest": "node examples\\play_radio.js --host 192.168.100.12 --port 7000  --debug true --mode 1 --airplay2 1",
+    "izanami": "node ./izanami.js"
   },
   "licenses": [
     {
