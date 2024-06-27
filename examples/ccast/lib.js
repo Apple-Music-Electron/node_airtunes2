@@ -263,22 +263,26 @@ Chromecast.prototype.setTrackInfo = function (
   console.log('setTrackInfoInt', this.metadata);
   if (host == "all") {
     for (const [key, value] of Object.entries(this.activeConnections)) {
-      value.session.setMetadata(
-        song,
-        artist,
-        album,
-        artworkURL
-      );
+      try {
+        value.session.setMetadata(
+          song,
+          artist,
+          album,
+          artworkURL
+        );
+      } catch (e) {}
     }
   } else {
-    if (this.activeConnections[host]) {
-      this.activeConnections[host].session.setMetadata(
-        song,
-        artist,
-        album,
-        artworkURL
-      );
-    }
+    try {
+      if (this.activeConnections[host]) {
+        this.activeConnections[host].session.setMetadata(
+          song,
+          artist,
+          album,
+          artworkURL
+        );
+      }
+    } catch (e) {}
   }
   }
 };
@@ -288,19 +292,21 @@ Chromecast.prototype.setArtwork = function (host, artworkURL) {
     console.log('setArtworkInt', this.metadata);
     this.metadata.albumart = artworkURL;
     if (host == "all") {
-      for (const [key, value] of Object.entries(this.activeConnections)) {
-        value.session.setMetadata(
-          '',' ','',''
-        );
-        value.session.setMetadata(
-          this.metadata.name,
-          this.metadata.artistName,
-          this.metadata.albumName,
-          this.metadata.albumart
-        );
-      }
+      try {
+        for (const [key, value] of Object.entries(this.activeConnections)) {
+          value.session.setMetadata(
+            '',' ','',''
+          );
+          value.session.setMetadata(
+            this.metadata.name,
+            this.metadata.artistName,
+            this.metadata.albumName,
+            this.metadata.albumart
+          );
+        }
+      } catch (e) {}
     } else {
-      
+      try {  
     if (this.activeConnections[host]) {
       this.activeConnections[host].session.setMetadata(
         '',' ','',''
@@ -311,7 +317,8 @@ Chromecast.prototype.setArtwork = function (host, artworkURL) {
         this.metadata.albumName,
         this.metadata.albumart
       );
-    }}
+    }} catch (e) {}}
+    
   }
 };
 

@@ -19,17 +19,17 @@
     "url": "https://github.com/ciderapp/node_airtunes2.git"
   },
   "scripts": {
-    "build": "run-script-os",
-    "build:win32": "prebuild --platform win32 -r electron -t 30.0.4",
-    "build:linux": "prebuild --platform linux -r electron -t 30.0.4",
-    "build:darwin": "prebuild --platform darwin -r electron -t 30.0.4 && prebuild --platform darwin -a arm64 -r electron -t 30.0.4",
-    "prebuild-install": "prebuild-install || (npm run rebuild || (true || VER>NUL))",
+    "build-binaries-electron": "run-script-os",
+    "build-binaries-electron-ci": "prebuild --platform win32 --platform linux --platform darwin --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 25.0.0-alpha.1 -t 24.0.0-alpha.1 -t 23.0.0-alpha.1 -t 22.0.0-alpha.1 -t 21.0.- -t 20.1.- -t 19.0.1 -t 16.0.7",
+    "build-binaries-electron:win32": "prebuild --platform win32 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 25.0.0-alpha.1 -t 24.0.0-alpha.1 -t 23.0.0-alpha.1 -t 22.0.0-alpha.1 -t 21.0.0 -t 20.1.0 -t 19.0.3 -t 18.3.3 -t 16.0.7",
+    "build-binaries-electron:linux": "prebuild --platform linux --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 25.0.0-alpha.1 -t 24.0.0-alpha.1 -t 23.0.0-alpha.1 -t 22.0.0-alpha.1 -t 21.0.0 -t 20.1.0 -t 19.0.3 -t 18.3.3",
+    "build-binaries-electron:darwin": "prebuild --platform darwin --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 25.0.0-alpha.1 -t 24.0.0-alpha.1 -t 23.0.0-alpha.1 -t 22.0.0-alpha.1 -t 21.0.0 -t 20.1.0 -t 19.0.3 -t 18.3.3",
+    "build-binaries-electron2": "prebuild --platform darwin -a arm64 --include-regex \"^.*\\.(node|dylib|lib|exp|dll|so(\\.[0-9])?)$\" -r electron -t 25.0.0-alpha.1 -t 24.0.0-alpha.1 -t 23.0.0-alpha.1 -t 22.0.0-alpha.1 -t 21.0.0 -t 20.1.0 -t 19.0.3 -t 18.3.3",
+    "install": "prebuild-install || (npm run rebuild || (true || VER>NUL))",
     "rebuild": "node-gyp configure build",
     "exe": "pkg --compress Brotli .",
     "exefast": "pkg .",
-    "vaportest": "node examples\\play_radio.js --host 192.168.100.12 --port 7000  --debug true --mode 1 --airplay2 1",
-    "izanami": "node ./izanami.js",
-    "izanami:build": "node ./scripts/esbuild.cjs"
+    "vaportest": "node examples\\play_radio.js --host 192.168.100.12 --port 7000  --debug true --mode 1 --airplay2 1"
   },
   "licenses": [
     {
@@ -51,47 +51,49 @@
       "node_modules/castv2/lib/*.proto"
     ],
     "targets": [
-      "node20-win"
+      "node18-win"
     ]
   },
   "dependencies": {
-    "@noble/ed25519": "^1.7.3",
-    "@yao-pkg/pkg": "^5.11.4",
+    "@noble/ed25519": "^1.6.1",
     "arraybuffer-to-string": "^1.0.2",
-    "async": "^3.2.5",
-    "axlsign": "ciderapp/curve25519-js",
-    "big-integer": "^1.6.52",
+    "async": "^3.2.1",
+    "axlsign": "git+https://github.com/ciderapp/curve25519-js.git",
+    "big-integer": "^1.6.25",
     "castv2-client": "^1.2.0",
-    "chacha-js": "ciderapp/chacha20poly1305",
-    "crypto-js": "^4.2.0",
+    "chacha-js": "https://github.com/ciderapp/chacha20poly1305",
+    "crypto-js": "^4.1.1",
     "curve25519-js": "^0.0.4",
-    "electron-fetch": "^1.9.1",
-    "elliptic": "^6.5.5",
+    "electron-fetch": "^1.7.4",
+    "elliptic": "^6.4.0",
+    "express": "^4.18.2",
     "fast-srp-hap": "^2.0.4",
-    "js-crypto-aes": "^1.0.6",
-    "js-sha1": "^0.7.0",
-    "lodash": "^4.17.21",
-    "mdns-js": "ciderapp/node-mdns-js",
-    "node-gyp": "^10.1.0",
+    "ip": "^1.1.8",
+    "js-crypto-aes": "^1.0.4",
+    "js-sha1": "^0.4.1",
+    "lodash": "^4.17.4",
+    "mdns-js": "github:ciderapp/node-mdns-js",
     "parse-raw-http": "0.0.1",
-    "prebuild-install": "ciderapp/prebuild-install",
+    "pkg": "^5.8.0",
+    "prebuild-install": "git+https://github.com/ciderapp/prebuild-install.git",
     "python-struct": "^1.1.3",
-    "simple-plist": "^1.4.0",
+    "simple-plist": "^1.3.1",
     "varint": "^6.0.0",
-    "ws": "^8.16.0",
-    "yargs": "^17.7.2"
+    "ws": "^8.12.0",
+    "yargs": "^9.0.1"
+  },
+  "optionalDependencies": {
+    "get-port-sync": "^1.0.1",
+    "nicercast": "github:vapormusic/nicercast"
   },
   "devDependencies": {
-    "esbuild": "^0.21.5",
-    "node-abi": "^3.56.0",
+    "node-abi": "^3.31.0",
     "optimist": "^0.6.1",
-    "prebuild": "ciderapp/prebuild",
-    "request": "^2.88.2",
-    "rollup": "^4.18.0",
+    "prebuild": "git+https://github.com/ciderapp/prebuild.git",
+    "request": "^2.83.0",
     "run-script-os": "^1.1.6"
   },
   "bugs": {
     "url": "https://github.com/ciderapp/node_airtunes2/issues"
-  },
-  "packageManager": "yarn@4.1.0"
+  }
 }
